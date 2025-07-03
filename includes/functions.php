@@ -6,7 +6,6 @@ function is_logged_in() {
     return isset($_SESSION['user_id']);
 }
 
-<<<<<<< HEAD
 function sanitize_input($data) {
     if (is_array($data)) {
         return array_map('sanitize_input', $data);
@@ -17,8 +16,6 @@ function sanitize_input($data) {
     return $data;
 }
 
-=======
->>>>>>> 3f9dcde68acb56b96a6b5a0664e4b76626655a50
 function require_login() {
     if (!is_logged_in()) {
         $_SESSION['message'] = "You must be logged in to access that page.";
@@ -103,42 +100,6 @@ function get_latest_news($limit = 4) {
     return db_fetch_all($result);
 }
 
-<<<<<<< HEAD
-=======
-function get_news_by_category($category, $limit = 10) {
-    $category = db_escape($category);
-    $query = "SELECT * FROM news WHERE category = '$category' ORDER BY date DESC LIMIT $limit";
-    $result = db_query($query);
-    return db_fetch_all($result);
-}
-
-function get_news_by_id($id) {
-    $id = (int)$id;
-    $query = "SELECT * FROM news WHERE id = $id LIMIT 1";
-    $result = db_query($query);
-    
-    if (db_num_rows($result) == 1) {
-        return db_fetch_array($result);
-    }
-    
-    return null;
-}
-
-function get_related_news($id, $limit = 3) {
-    $id = (int)$id;
-    $article = get_news_by_id($id);
-    
-    if (!$article) {
-        return [];
-    }
-    
-    $category = db_escape($article['category']);
-    $query = "SELECT * FROM news WHERE id != $id AND category = '$category' ORDER BY date DESC LIMIT $limit";
-    $result = db_query($query);
-    return db_fetch_all($result);
-}
-
->>>>>>> 3f9dcde68acb56b96a6b5a0664e4b76626655a50
 // Match functions
 function get_upcoming_matches($limit = 3) {
     $query = "SELECT * FROM matches WHERE match_date >= CURDATE() ORDER BY match_date ASC LIMIT $limit";
@@ -164,36 +125,6 @@ function get_match_by_id($id) {
     return null;
 }
 
-<<<<<<< HEAD
-
-=======
-// Utility functions
-function format_date($date_string) {
-    $date = new DateTime($date_string);
-    return $date->format('F j, Y');
-}
-
-function get_time_ago($datetime) {
-    $time = strtotime($datetime);
-    $now = time();
-    $diff = $now - $time;
-    
-    if ($diff < 60) {
-        return "Just now";
-    } elseif ($diff < 3600) {
-        $mins = round($diff / 60);
-        return $mins . " minute" . ($mins > 1 ? "s" : "") . " ago";
-    } elseif ($diff < 86400) {
-        $hours = round($diff / 3600);
-        return $hours . " hour" . ($hours > 1 ? "s" : "") . " ago";
-    } elseif ($diff < 604800) {
-        $days = round($diff / 86400);
-        return $days . " day" . ($days > 1 ? "s" : "") . " ago";
-    } else {
-        return format_date($datetime);
-    }
-}
->>>>>>> 3f9dcde68acb56b96a6b5a0664e4b76626655a50
 
 function display_message() {
     if (isset($_SESSION['message'])) {
@@ -220,7 +151,6 @@ function clean_url($string) {
     return trim($string, '-');
 }
 
-<<<<<<< HEAD
 function get_gallery_images($category = null, $limit = null) {
     create_dummy_gallery_data();
     
@@ -247,80 +177,6 @@ function get_gallery_images($category = null, $limit = null) {
     return [];
 }
 
-=======
-// Gallery functions
-function get_gallery_images($limit = 5) {
-    $query = "SELECT * FROM gallery ORDER BY id DESC LIMIT $limit";
-    $result = db_query($query);
-    return db_fetch_all($result);
-}
-
-// Community functions
-function get_forum_categories() {
-    $query = "SELECT * FROM forum_categories ORDER BY display_order";
-    $result = db_query($query);
-    return db_fetch_all($result);
-}
-
-function get_forum_topics($category_id, $limit = 10, $offset = 0) {
-    $category_id = (int)$category_id;
-    $limit = (int)$limit;
-    $offset = (int)$offset;
-    
-    $query = "SELECT t.*, u.name as author_name, u.profile_image, 
-              (SELECT COUNT(*) FROM forum_posts WHERE topic_id = t.id) as post_count,
-              (SELECT MAX(created_at) FROM forum_posts WHERE topic_id = t.id) as last_post_date
-              FROM forum_topics t
-              JOIN users u ON t.user_id = u.id
-              WHERE t.category_id = $category_id
-              ORDER BY t.is_sticky DESC, t.last_post_at DESC
-              LIMIT $offset, $limit";
-    
-    $result = db_query($query);
-    return db_fetch_all($result);
-}
-
-function get_forum_topic($topic_id) {
-    $topic_id = (int)$topic_id;
-    
-    $query = "SELECT t.*, u.name as author_name, u.profile_image, c.name as category_name
-              FROM forum_topics t
-              JOIN users u ON t.user_id = u.id
-              JOIN forum_categories c ON t.category_id = c.id
-              WHERE t.id = $topic_id";
-    
-    $result = db_query($query);
-    
-    if (db_num_rows($result) == 1) {
-        return db_fetch_array($result);
-    }
-    
-    return null;
-}
-
-function get_forum_posts($topic_id, $limit = 10, $offset = 0) {
-    $topic_id = (int)$topic_id;
-    $limit = (int)$limit;
-    $offset = (int)$offset;
-    
-    $query = "SELECT p.*, u.name as author_name, u.profile_image, u.role as author_role
-              FROM forum_posts p
-              JOIN users u ON p.user_id = u.id
-              WHERE p.topic_id = $topic_id
-              ORDER BY p.created_at
-              LIMIT $offset, $limit";
-    
-    $result = db_query($query);
-    return db_fetch_all($result);
-}
-
-// Standings functions
-function get_league_standings() {
-    $query = "SELECT * FROM standings ORDER BY points DESC, goal_difference DESC, goals_for DESC";
-    $result = db_query($query);
-    return db_fetch_all($result);
-}
->>>>>>> 3f9dcde68acb56b96a6b5a0664e4b76626655a50
 
 // Player functions
 function get_team_players() {
@@ -543,218 +399,6 @@ function add_dummy_data() {
     }
 }
 
-<<<<<<< HEAD
-=======
-// Tambahkan fungsi baru untuk mendapatkan forum topics terbaru
-function get_recent_forum_topics($limit = 3) {
-    $limit = (int)$limit;
-    
-    // Cek apakah tabel forum_topics ada
-    $check_table = db_query("SHOW TABLES LIKE 'forum_topics'");
-    if (db_num_rows($check_table) == 0) {
-        // Tabel tidak ada, buat dummy data
-        create_dummy_forum_data();
-    }
-    
-    $query = "SELECT t.*, u.name as author_name, u.profile_image, c.name as category_name,
-              (SELECT COUNT(*) FROM forum_posts WHERE topic_id = t.id) as post_count
-              FROM forum_topics t
-              JOIN users u ON t.user_id = u.id
-              JOIN forum_categories c ON t.category_id = c.id
-              ORDER BY t.created_at DESC
-              LIMIT $limit";
-    
-    $result = db_query($query);
-    return db_fetch_all($result);
-}
-
-// Fungsi untuk membuat dummy data forum jika belum ada
-function create_dummy_forum_data() {
-    // Cek apakah tabel forum_categories ada
-    $check_categories = db_query("SHOW TABLES LIKE 'forum_categories'");
-    if (db_num_rows($check_categories) == 0) {
-        // Buat tabel forum_categories
-        db_query("CREATE TABLE forum_categories (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(100) NOT NULL,
-            description TEXT,
-            display_order INT DEFAULT 0,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )");
-        
-        // Tambahkan kategori dasar
-        $categories = [
-            ['name' => 'General Discussion', 'description' => 'General topics about Real Madrid'],
-            ['name' => 'Match Discussion', 'description' => 'Discuss matches, tactics, and performances'],
-            ['name' => 'Transfer Talk', 'description' => 'Rumors, news, and discussions about transfers'],
-            ['name' => 'Fan Zone', 'description' => 'Share your experiences as a Madridista']
-        ];
-        
-        foreach ($categories as $index => $category) {
-            $name = db_escape($category['name']);
-            $description = db_escape($category['description']);
-            $order = $index + 1;
-            
-            db_query("INSERT INTO forum_categories (name, description, display_order) 
-                     VALUES ('$name', '$description', $order)");
-        }
-    }
-    
-    // Cek apakah tabel forum_topics ada
-    $check_topics = db_query("SHOW TABLES LIKE 'forum_topics'");
-    if (db_num_rows($check_topics) == 0) {
-        // Buat tabel forum_topics
-        db_query("CREATE TABLE forum_topics (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            category_id INT NOT NULL,
-            user_id INT NOT NULL,
-            title VARCHAR(255) NOT NULL,
-            content TEXT NOT NULL,
-            is_sticky TINYINT(1) DEFAULT 0,
-            is_locked TINYINT(1) DEFAULT 0,
-            views INT DEFAULT 0,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            last_post_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (category_id) REFERENCES forum_categories(id) ON DELETE CASCADE,
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-        )");
-        
-        // Buat tabel forum_posts
-        db_query("CREATE TABLE forum_posts (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            topic_id INT NOT NULL,
-            user_id INT NOT NULL,
-            content TEXT NOT NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (topic_id) REFERENCES forum_topics(id) ON DELETE CASCADE,
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-        )");
-        
-        // Tambahkan beberapa topik dummy
-        // Pertama, pastikan ada user
-        $check_users = db_query("SELECT id FROM users LIMIT 1");
-        if (db_num_rows($check_users) == 0) {
-            // Buat user admin jika belum ada
-            $admin_password = password_hash('admin123', PASSWORD_DEFAULT);
-            db_query("INSERT INTO users (name, email, password, role, created_at) 
-                     VALUES ('Admin', 'admin@example.com', '$admin_password', 'admin', NOW())");
-        }
-        
-        // Dapatkan user_id
-        $user_result = db_query("SELECT id FROM users LIMIT 1");
-        $user = db_fetch($user_result);
-        $user_id = $user['id'];
-        
-        // Dapatkan category_ids
-        $categories_result = db_query("SELECT id FROM forum_categories");
-        $categories = db_fetch_all($categories_result);
-        
-        // Topik dummy
-        $topics = [
-            [
-                'title' => 'Thoughts on our Champions League chances this season?',
-                'content' => 'With the squad we have and our recent form, I think we have a good chance of going all the way in the Champions League this season. What do you all think?',
-                'category_id' => $categories[1]['id'], // Match Discussion
-                'views' => 245
-            ],
-            [
-                'title' => 'Best signing of the summer transfer window',
-                'content' => 'Who do you think was our best signing this summer? I personally think our new midfielder has been exceptional and exactly what we needed.',
-                'category_id' => $categories[2]['id'], // Transfer Talk
-                'views' => 189
-            ],
-            [
-                'title' => 'My first visit to Santiago Bernabéu',
-                'content' => 'I finally got to visit the Santiago Bernabéu last weekend and it was an incredible experience! The atmosphere was electric and seeing the team play live was a dream come true.',
-                'category_id' => $categories[3]['id'], // Fan Zone
-                'views' => 132
-            ]
-        ];
-        
-        foreach ($topics as $topic) {
-            $title = db_escape($topic['title']);
-            $content = db_escape($topic['content']);
-            $category_id = (int)$topic['category_id'];
-            $views = (int)$topic['views'];
-            
-            db_query("INSERT INTO forum_topics (category_id, user_id, title, content, views, created_at, last_post_at) 
-                     VALUES ($category_id, $user_id, '$title', '$content', $views, NOW(), NOW())");
-            
-            // Tambahkan post pertama (sama dengan konten topik)
-            $topic_id = db_insert_id();
-            db_query("INSERT INTO forum_posts (topic_id, user_id, content, created_at) 
-                     VALUES ($topic_id, $user_id, '$content', NOW())");
-        }
-    }
-}
-
-
-
-// Fungsi untuk membuat dummy data gallery jika belum ada
-function create_dummy_gallery_data() {
-    // Buat tabel gallery jika belum ada
-    db_query("CREATE TABLE IF NOT EXISTS gallery (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        title VARCHAR(255) NOT NULL,
-        description TEXT,
-        image_url VARCHAR(255) NOT NULL,
-        thumbnail_url VARCHAR(255),
-        category VARCHAR(50),
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )");
-    
-    // Tambahkan beberapa gambar dummy
-    $images = [
-        [
-            'title' => 'Santiago Bernabéu Stadium',
-            'description' => 'The iconic home of Real Madrid',
-            'image_url' => 'assets/images/gallery/Santiago.jpeg',
-            'category' => 'Stadium'
-        ],
-        [
-            'title' => 'Champions League Celebration',
-            'description' => 'Players celebrating our latest Champions League victory',
-            'image_url' => 'assets/images/gallery/celebration.jpg',
-            'category' => 'Celebrations'
-        ],
-        [
-            'title' => 'Team Photo 2024/25',
-            'description' => 'Official team photo for the 2024/25 season',
-            'image_url' => 'assets/images/gallery/team-photo.jpg',
-            'category' => 'Team'
-        ],
-        [
-            'title' => 'El Clásico Action',
-            'description' => 'Intense moment from the latest El Clásico',
-            'image_url' => 'assets/images/gallery/clasico.jpg',
-            'category' => 'Matches'
-        ],
-        [
-            'title' => 'Training Session',
-            'description' => 'Players during a training session at Valdebebas',
-            'image_url' => 'assets/images/gallery/training.jpg',
-            'category' => 'Training'
-        ],
-        [
-            'title' => 'Fans at the Bernabéu',
-            'description' => 'Amazing atmosphere created by our fans',
-            'image_url' => 'assets/images/gallery/fans.jpg',
-            'category' => 'Fans'
-        ]
-    ];
-    
-    foreach ($images as $image) {
-        $title = db_escape($image['title']);
-        $description = db_escape($image['description']);
-        $image_url = db_escape($image['image_url']);
-        $category = db_escape($image['category']);
-        
-        db_query("INSERT INTO gallery (title, description, image_url, category, created_at) 
-                 VALUES ('$title', '$description', '$image_url', '$category', NOW())");
-    }
-}
-
->>>>>>> 3f9dcde68acb56b96a6b5a0664e4b76626655a50
 // Tambahkan fungsi untuk membuat dummy data berita
 function create_dummy_news_data() {
     // Cek apakah tabel news ada
@@ -777,11 +421,7 @@ function create_dummy_news_data() {
     
     // Cek apakah sudah ada data berita
     $check_data = db_query("SELECT COUNT(*) as count FROM news");
-<<<<<<< HEAD
     $data = db_fetch_array($check_data);
-=======
-    $data = db_fetch($check_data);
->>>>>>> 3f9dcde68acb56b96a6b5a0664e4b76626655a50
     
     if ($data['count'] == 0) {
         // Tambahkan berita dummy
@@ -863,24 +503,6 @@ function create_dummy_news_data() {
         }
     }
 }
-<<<<<<< HEAD
-=======
-// Tambahkan fungsi untuk search berita
-function search_news($search_term, $limit = 12) {
-    $limit = (int)$limit;
-    $search_term = db_escape($search_term);
-    
-    create_dummy_news_data();
-    
-    $query = "SELECT * FROM news 
-              WHERE title LIKE '%$search_term%' 
-              OR excerpt LIKE '%$search_term%' 
-              OR content LIKE '%$search_term%'
-              ORDER BY date DESC, created_at DESC LIMIT $limit";
-    $result = db_query($query);
-    return db_fetch_all($result);
-}
->>>>>>> 3f9dcde68acb56b96a6b5a0664e4b76626655a50
 
 // Fungsi untuk membuat dummy data matches
 function create_dummy_matches_data() {
@@ -1056,7 +678,6 @@ function create_dummy_users_data() {
         }
     }
 }
-<<<<<<< HEAD
 /**
  * Add gallery image
  */
@@ -1929,8 +1550,6 @@ function getMatchWinner($match) {
 function canEditMatch($user_role) {
     return in_array($user_role, ['admin', 'moderator']);
 }
-=======
->>>>>>> 3f9dcde68acb56b96a6b5a0664e4b76626655a50
 
 
 ?>

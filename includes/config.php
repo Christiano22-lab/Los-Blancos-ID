@@ -1,5 +1,4 @@
 <?php
-<<<<<<< HEAD
 // includes/config.php
 
 // Prevent direct access
@@ -10,13 +9,10 @@ if (!defined('INCLUDED')) {
 // Environment configuration
 define('ENVIRONMENT', 'development'); // Change to 'production' when live
 
-=======
->>>>>>> 3f9dcde68acb56b96a6b5a0664e4b76626655a50
 // Database configuration
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
 define('DB_PASS', '');
-<<<<<<< HEAD
 define('DB_NAME', 'los_blancos_db');
 
 // Website settings
@@ -167,22 +163,4 @@ if (!isset($page_title)) {
 if (!isset($breadcrumbs)) {
     $breadcrumbs = [];
 }
-=======
-define('DB_NAME', 'real_madrid_fansite');
-
-// Website settings
-define('SITE_NAME', 'Los Blancos ID');
-define('SITE_URL', 'http://localhost/ProjectAkhir');
-define('ADMIN_EMAIL', 'admin@realmadridfanclub.com');
-
-// Session configuration
-session_start();
-
-// Error reporting (disable in production)
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-// Time zone
-date_default_timezone_set('Asia/Jakarta');
->>>>>>> 3f9dcde68acb56b96a6b5a0664e4b76626655a50
 ?>

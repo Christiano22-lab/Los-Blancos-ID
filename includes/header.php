@@ -29,25 +29,12 @@
                     <li><a href="index.php" <?php echo $current_page === 'home' ? 'class="active"' : ''; ?>>Home</a></li>
                     <li><a href="news.php" <?php echo $current_page === 'news' ? 'class="active"' : ''; ?>>News</a></li>
                     <li><a href="matches.php" <?php echo $current_page === 'matches' ? 'class="active"' : ''; ?>>Matches</a></li>
-<<<<<<< HEAD
-=======
-                    <li><a href="standings.php" <?php echo $current_page === 'standings' ? 'class="active"' : ''; ?>>Standings</a></li>
->>>>>>> 3f9dcde68acb56b96a6b5a0664e4b76626655a50
                     <li><a href="media.php" <?php echo $current_page === 'media' ? 'class="active"' : ''; ?>>Media</a></li>
                     <li><a href="community.php" <?php echo $current_page === 'community' ? 'class="active"' : ''; ?>>Community</a></li>
                 </ul>
             </nav>
 
-<<<<<<< HEAD
             <div class="header-actions">              
-=======
-            <div class="header-actions">
-                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-                    <i class="fas fa-sun"></i>
-                    <i class="fas fa-moon"></i>
-                </button>
-                
->>>>>>> 3f9dcde68acb56b96a6b5a0664e4b76626655a50
                 <?php if (is_logged_in()): ?>
                     <a href="profile.php" class="profile-button" aria-label="Profile">
                         <i class="fas fa-user"></i>
@@ -68,12 +55,7 @@
                 <a href="index.php" <?php echo $current_page === 'home' ? 'class="active"' : ''; ?>>Home</a>
                 <a href="news.php" <?php echo $current_page === 'news' ? 'class="active"' : ''; ?>>News</a>
                 <a href="matches.php" <?php echo $current_page === 'matches' ? 'class="active"' : ''; ?>>Matches</a>
-<<<<<<< HEAD
                <a href="media.php" <?php echo $current_page === 'media' ? 'class="active"' : ''; ?>>Media</a>
-=======
-                <a href="standings.php" <?php echo $current_page === 'standings' ? 'class="active"' : ''; ?>>Standings</a>
-                <a href="media.php" <?php echo $current_page === 'media' ? 'class="active"' : ''; ?>>Media</a>
->>>>>>> 3f9dcde68acb56b96a6b5a0664e4b76626655a50
                 <a href="community.php" <?php echo $current_page === 'community' ? 'class="active"' : ''; ?>>Community</a>
                 
                 <div class="mobile-sign-in">
