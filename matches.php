@@ -55,7 +55,10 @@ include 'includes/header.php';
                     <div class="match-grid match-page-grid">
                         <?php if (empty($upcoming_matches)): ?>
                             <div class="no-matches">
+<<<<<<< HEAD
                                 <i class="far fa-calendar-times"></i>
+=======
+>>>>>>> 3f9dcde68acb56b96a6b5a0664e4b76626655a50
                                 <p>No upcoming matches scheduled at the moment.</p>
                             </div>
                         <?php else: ?>
@@ -67,7 +70,11 @@ include 'includes/header.php';
                                     </div>
                                     <div class="match-teams">
                                         <div class="team">
+<<<<<<< HEAD
                                             <img src="<?php echo $match['home_team_logo']; ?>" alt="<?php echo $match['home_team']; ?>" loading="lazy">
+=======
+                                            <img src="<?php echo $match['home_team_logo']; ?>" alt="<?php echo $match['home_team']; ?>">
+>>>>>>> 3f9dcde68acb56b96a6b5a0664e4b76626655a50
                                             <span><?php echo $match['home_team']; ?></span>
                                         </div>
                                         <div class="match-info">
@@ -75,7 +82,11 @@ include 'includes/header.php';
                                             <div class="match-time"><?php echo $match['match_time']; ?></div>
                                         </div>
                                         <div class="team">
+<<<<<<< HEAD
                                             <img src="<?php echo $match['away_team_logo']; ?>" alt="<?php echo $match['away_team']; ?>" loading="lazy">
+=======
+                                            <img src="<?php echo $match['away_team_logo']; ?>" alt="<?php echo $match['away_team']; ?>">
+>>>>>>> 3f9dcde68acb56b96a6b5a0664e4b76626655a50
                                             <span><?php echo $match['away_team']; ?></span>
                                         </div>
                                     </div>
@@ -93,7 +104,10 @@ include 'includes/header.php';
                     <div class="match-grid match-page-grid">
                         <?php if (empty($recent_results)): ?>
                             <div class="no-matches">
+<<<<<<< HEAD
                                 <i class="far fa-calendar-times"></i>
+=======
+>>>>>>> 3f9dcde68acb56b96a6b5a0664e4b76626655a50
                                 <p>No recent match results available.</p>
                             </div>
                         <?php else: ?>
@@ -105,7 +119,11 @@ include 'includes/header.php';
                                     </div>
                                     <div class="match-teams">
                                         <div class="team">
+<<<<<<< HEAD
                                             <img src="<?php echo $match['home_team_logo']; ?>" alt="<?php echo $match['home_team']; ?>" loading="lazy">
+=======
+                                            <img src="<?php echo $match['home_team_logo']; ?>" alt="<?php echo $match['home_team']; ?>">
+>>>>>>> 3f9dcde68acb56b96a6b5a0664e4b76626655a50
                                             <span><?php echo $match['home_team']; ?></span>
                                         </div>
                                         <div class="match-info">
@@ -113,7 +131,11 @@ include 'includes/header.php';
                                             <div class="match-status">Completed</div>
                                         </div>
                                         <div class="team">
+<<<<<<< HEAD
                                             <img src="<?php echo $match['away_team_logo']; ?>" alt="<?php echo $match['away_team']; ?>" loading="lazy">
+=======
+                                            <img src="<?php echo $match['away_team_logo']; ?>" alt="<?php echo $match['away_team']; ?>">
+>>>>>>> 3f9dcde68acb56b96a6b5a0664e4b76626655a50
                                             <span><?php echo $match['away_team']; ?></span>
                                         </div>
                                     </div>
@@ -132,14 +154,19 @@ include 'includes/header.php';
             <h2>Match Calendar</h2>
             <div class="calendar-box">
                 <p>View and download the complete match schedule for the season</p>
+<<<<<<< HEAD
                 <a href="assets/files/real-madrid-schedule.pdf" download class="btn btn-primary">
                     <i class="fas fa-download"></i> Download Calendar
                 </a>
+=======
+                <a href="assets/files/real-madrid-schedule.pdf" download class="btn btn-primary">Download Calendar</a>
+>>>>>>> 3f9dcde68acb56b96a6b5a0664e4b76626655a50
             </div>
         </div>
     </section>
 </div>
 
+<<<<<<< HEAD
 <link rel="stylesheet" href="assets/css/matches.css">
 
 <script>
@@ -162,6 +189,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
+=======
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+>>>>>>> 3f9dcde68acb56b96a6b5a0664e4b76626655a50
     // Competition filter functionality
     const competitionFilter = document.getElementById('competition-filter');
     const matchCards = document.querySelectorAll('.match-card');
@@ -177,6 +208,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+<<<<<<< HEAD
     
     // Highlight match results based on outcome
     const resultCards = document.querySelectorAll('#results .match-card');
@@ -201,6 +233,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+=======
+>>>>>>> 3f9dcde68acb56b96a6b5a0664e4b76626655a50
 });
 </script>
 
