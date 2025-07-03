@@ -22,30 +22,9 @@
                     <ul>
                         <li><a href="news.php">News</a></li>
                         <li><a href="matches.php">Matches</a></li>
-                        <li><a href="standings.php">Standings</a></li>
                         <li><a href="media.php">Media Gallery</a></li>
                         <li><a href="community.php">Community</a></li>
                     </ul>
-                </div>
-
-                <div class="footer-links">
-                    <h3>Information</h3>
-                    <ul>
-                        <li><a href="about.php">About Us</a></li>
-                        <li><a href="contact.php">Contact</a></li>
-                        <li><a href="privacy.php">Privacy Policy</a></li>
-                        <li><a href="terms.php">Terms of Service</a></li>
-                        <li><a href="faq.php">FAQ</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-newsletter">
-                    <h3>Newsletter</h3>
-                    <p>Subscribe to our newsletter for the latest news and updates.</p>
-                    <form class="newsletter-form" action="subscribe.php" method="post">
-                        <input type="email" name="email" placeholder="Your email address" required>
-                        <button type="submit" class="btn btn-block">Subscribe</button>
-                    </form>
                 </div>
             </div>
 

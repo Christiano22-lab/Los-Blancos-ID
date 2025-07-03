@@ -55,6 +55,7 @@ include 'includes/header.php';
                     <div class="match-grid match-page-grid">
                         <?php if (empty($upcoming_matches)): ?>
                             <div class="no-matches">
+                                <i class="far fa-calendar-times"></i>
                                 <p>No upcoming matches scheduled at the moment.</p>
                             </div>
                         <?php else: ?>
@@ -66,7 +67,7 @@ include 'includes/header.php';
                                     </div>
                                     <div class="match-teams">
                                         <div class="team">
-                                            <img src="<?php echo $match['home_team_logo']; ?>" alt="<?php echo $match['home_team']; ?>">
+                                            <img src="<?php echo $match['home_team_logo']; ?>" alt="<?php echo $match['home_team']; ?>" loading="lazy">
                                             <span><?php echo $match['home_team']; ?></span>
                                         </div>
                                         <div class="match-info">
@@ -74,7 +75,7 @@ include 'includes/header.php';
                                             <div class="match-time"><?php echo $match['match_time']; ?></div>
                                         </div>
                                         <div class="team">
-                                            <img src="<?php echo $match['away_team_logo']; ?>" alt="<?php echo $match['away_team']; ?>">
+                                            <img src="<?php echo $match['away_team_logo']; ?>" alt="<?php echo $match['away_team']; ?>" loading="lazy">
                                             <span><?php echo $match['away_team']; ?></span>
                                         </div>
                                     </div>
@@ -92,6 +93,7 @@ include 'includes/header.php';
                     <div class="match-grid match-page-grid">
                         <?php if (empty($recent_results)): ?>
                             <div class="no-matches">
+                                <i class="far fa-calendar-times"></i>
                                 <p>No recent match results available.</p>
                             </div>
                         <?php else: ?>
@@ -103,7 +105,7 @@ include 'includes/header.php';
                                     </div>
                                     <div class="match-teams">
                                         <div class="team">
-                                            <img src="<?php echo $match['home_team_logo']; ?>" alt="<?php echo $match['home_team']; ?>">
+                                            <img src="<?php echo $match['home_team_logo']; ?>" alt="<?php echo $match['home_team']; ?>" loading="lazy">
                                             <span><?php echo $match['home_team']; ?></span>
                                         </div>
                                         <div class="match-info">
@@ -111,7 +113,7 @@ include 'includes/header.php';
                                             <div class="match-status">Completed</div>
                                         </div>
                                         <div class="team">
-                                            <img src="<?php echo $match['away_team_logo']; ?>" alt="<?php echo $match['away_team']; ?>">
+                                            <img src="<?php echo $match['away_team_logo']; ?>" alt="<?php echo $match['away_team']; ?>" loading="lazy">
                                             <span><?php echo $match['away_team']; ?></span>
                                         </div>
                                     </div>
@@ -130,14 +132,36 @@ include 'includes/header.php';
             <h2>Match Calendar</h2>
             <div class="calendar-box">
                 <p>View and download the complete match schedule for the season</p>
-                <a href="assets/files/real-madrid-schedule.pdf" download class="btn btn-primary">Download Calendar</a>
+                <a href="assets/files/real-madrid-schedule.pdf" download class="btn btn-primary">
+                    <i class="fas fa-download"></i> Download Calendar
+                </a>
             </div>
         </div>
     </section>
 </div>
 
+<link rel="stylesheet" href="assets/css/matches.css">
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Tab functionality
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tabId = button.getAttribute('data-tab');
+            
+            // Update active tab button
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            
+            // Update active tab pane
+            tabPanes.forEach(pane => pane.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+        });
+    });
+    
     // Competition filter functionality
     const competitionFilter = document.getElementById('competition-filter');
     const matchCards = document.querySelectorAll('.match-card');
@@ -152,6 +176,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 card.style.display = 'none';
             }
         });
+    });
+    
+    // Highlight match results based on outcome
+    const resultCards = document.querySelectorAll('#results .match-card');
+    resultCards.forEach(card => {
+        const scoreElement = card.querySelector('.match-score');
+        if (scoreElement) {
+            const scores = scoreElement.textContent.split(' - ');
+            const homeScore = parseInt(scores[0]);
+            const awayScore = parseInt(scores[1]);
+            
+            if (homeScore > awayScore) {
+                card.querySelector('.team:first-child span').style.color = 'var(--win)';
+                card.querySelector('.team:first-child span').style.fontWeight = '600';
+            } else if (homeScore < awayScore) {
+                card.querySelector('.team:last-child span').style.color = 'var(--win)';
+                card.querySelector('.team:last-child span').style.fontWeight = '600';
+            } else {
+                card.querySelectorAll('.team span').forEach(span => {
+                    span.style.color = 'var(--draw)';
+                    span.style.fontWeight = '600';
+                });
+            }
+        }
     });
 });
 </script>

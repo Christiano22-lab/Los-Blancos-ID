@@ -1331,3 +1331,37 @@ input:focus, textarea:focus, select:focus {
     margin-bottom: 0.5rem;
   }
 }
+
+.news-slide {
+  flex: 0 0 auto; /* penting: agar tidak ikut fleksibel */
+  width: 100%; /* bisa kamu sesuaikan: 400px jika mau */
+}
+
+.carousel-nav-btn {
+  background-color: transparent;
+  border: 2px solid #003da5;
+  color: #003da5;
+  transition: all 0.3s ease;
+}
+
+.carousel-nav-btn:hover {
+  background-color: #003da5;
+  color: white;
+}
+
+.carousel-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #ccc;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}
+
+.carousel-dot.active {
+  background-color: #003da5;
+}
+
+.carousel-dot:hover {
+  background-color: #ffd700;
+}
