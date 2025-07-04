@@ -75,7 +75,6 @@ require_once 'includes/header.php';
             <div class="story-image">
                 <img src="assets/images/gallery/1.jpeg" alt="Community gathering" class="story-img">
                 <div class="image-overlay">
-                    <i class="fas fa-play-circle"></i>
                     <span>Watch Our Journey</span>
                 </div>
             </div>

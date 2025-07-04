@@ -1365,3 +1365,38 @@ input:focus, textarea:focus, select:focus {
 .carousel-dot:hover {
   background-color: #ffd700;
 }
+
+.mobile-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background-color: #fff;
+  z-index: 999;
+  padding: 1rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-menu.active {
+  display: block;
+}
+
+.mobile-menu-button {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #333;
+  cursor: pointer;
+}
+
+@media screen and (max-width: 768px) {
+  .mobile-menu-button {
+      display: block;
+  }
+
+  .desktop-nav {
+      display: none;
+  }
+}

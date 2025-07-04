@@ -55,6 +55,7 @@
         <div class="mobile-menu" id="mobileMenu">
             <div class="container">
                 <a href="index.php" <?php echo $current_page === 'home' ? 'class="active"' : ''; ?>>Home</a>
+                <a href="about.php" <?php echo $current_page === 'about' ? 'class="active"' : ''; ?>>About Us</a>
                 <a href="news.php" <?php echo $current_page === 'news' ? 'class="active"' : ''; ?>>News</a>
                 <a href="matches.php" <?php echo $current_page === 'matches' ? 'class="active"' : ''; ?>>Matches</a>
                <a href="media.php" <?php echo $current_page === 'media' ? 'class="active"' : ''; ?>>Media</a>
@@ -74,5 +75,14 @@
 
     <main>
         <?php display_message(); ?>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleBtn = document.getElementById('mobileMenuToggle');
+            const mobileMenu = document.getElementById('mobileMenu');
 
+            toggleBtn.addEventListener('click', function () {
+                mobileMenu.classList.toggle('active');
+            });
+        });
+    </script>                    
     <script src="assets/js/logout-modal.js"></script>

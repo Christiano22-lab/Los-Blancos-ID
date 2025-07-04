@@ -13,30 +13,43 @@ $success = '';
 
 if ($_POST) {
     $name = sanitize_input($_POST['name']);
+    $username = sanitize_input($_POST['username']);
     $email = sanitize_input($_POST['email']);
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
     
-    if (!empty($name) && !empty($email) && !empty($password)) {
+    if (!empty($name) && !empty($username) && !empty($email) && !empty($password)) {
         if ($password === $confirm_password) {
+            // Check if email already exists
             $email_escaped = db_escape($email);
-            $check_query = "SELECT * FROM users WHERE email = '$email_escaped' LIMIT 1";
-            $result = db_query($check_query);
+            $check_email_query = "SELECT * FROM users WHERE email = '$email_escaped' LIMIT 1";
+            $email_result = db_query($check_email_query);
             
-            if (db_num_rows($result) == 0) {
+            // Check if username already exists
+            $username_escaped = db_escape($username);
+            $check_username_query = "SELECT * FROM users WHERE username = '$username_escaped' LIMIT 1";
+            $username_result = db_query($check_username_query);
+            
+            if (db_num_rows($email_result) > 0) {
+                $error = 'Email sudah terdaftar. Silakan gunakan email lain.';
+            } elseif (db_num_rows($username_result) > 0) {
+                $error = 'Username sudah digunakan. Silakan pilih username lain.';
+            } elseif (strlen($username) < 3) {
+                $error = 'Username minimal 3 karakter.';
+            } elseif (!preg_match('/^[a-zA-Z0-9_]+$/', $username)) {
+                $error = 'Username hanya boleh mengandung huruf, angka, dan underscore.';
+            } else {
                 $name_escaped = db_escape($name);
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
                 
-                $insert_query = "INSERT INTO users (name, email, password, role, created_at) 
-                               VALUES ('$name_escaped', '$email_escaped', '$hashed_password', 'user', NOW())";
+                $insert_query = "INSERT INTO users (name, username, email, password, role, created_at) 
+                               VALUES ('$name_escaped', '$username_escaped', '$email_escaped', '$hashed_password', 'user', NOW())";
                 
                 if (db_query($insert_query)) {
-                    $success = 'Registrasi berhasil! Silakan login dengan akun Anda.';
+                    $success = 'Registrasi berhasil! Silakan login dengan username atau email Anda.';
                 } else {
                     $error = 'Terjadi kesalahan saat mendaftar. Silakan coba lagi.';
                 }
-            } else {
-                $error = 'Email sudah terdaftar. Silakan gunakan email lain.';
             }
         } else {
             $error = 'Password dan konfirmasi password tidak cocok!';
@@ -54,6 +67,7 @@ if ($_POST) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daftar - Los Blancos ID</title>
     <link rel="stylesheet" href="assets/css/register.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <div class="auth-container">
@@ -66,18 +80,14 @@ if ($_POST) {
             
             <?php if($error): ?>
                 <div class="alert alert-error">
-                    <svg class="icon" viewBox="0 0 24 24">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                    </svg>
+                    <i class="fas fa-exclamation-circle"></i>
                     <?php echo htmlspecialchars($error); ?>
                 </div>
             <?php endif; ?>
             
             <?php if($success): ?>
                 <div class="alert alert-success">
-                    <svg class="icon" viewBox="0 0 24 24">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                    </svg>
+                    <i class="fas fa-check-circle"></i>
                     <?php echo htmlspecialchars($success); ?>
                 </div>
             <?php endif; ?>
@@ -85,9 +95,7 @@ if ($_POST) {
             <form method="POST" class="auth-form">
                 <div class="form-group">
                     <label for="name">
-                        <svg class="icon" viewBox="0 0 24 24">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                        </svg>
+                        <i class="fas fa-user"></i>
                         Nama Lengkap
                     </label>
                     <input type="text" id="name" name="name" 
@@ -96,10 +104,20 @@ if ($_POST) {
                 </div>
                 
                 <div class="form-group">
+                    <label for="username">
+                        <i class="fas fa-at"></i>
+                        Username
+                    </label>
+                    <input type="text" id="username" name="username" 
+                           value="<?php echo isset($_POST['username']) ? htmlspecialchars($_POST['username']) : ''; ?>" 
+                           placeholder="Minimal 3 karakter, hanya huruf, angka, dan underscore"
+                           required>
+                    <small class="form-help">Username akan digunakan untuk login dan profil publik Anda</small>
+                </div>
+                
+                <div class="form-group">
                     <label for="email">
-                        <svg class="icon" viewBox="0 0 24 24">
-                            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-                        </svg>
+                        <i class="fas fa-envelope"></i>
                         Email
                     </label>
                     <input type="email" id="email" name="email" 
@@ -109,28 +127,32 @@ if ($_POST) {
                 
                 <div class="form-group">
                     <label for="password">
-                        <svg class="icon" viewBox="0 0 24 24">
-                            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
-                        </svg>
+                        <i class="fas fa-lock"></i>
                         Password
                     </label>
-                    <input type="password" id="password" name="password" required>
+                    <div class="password-input">
+                        <input type="password" id="password" name="password" required>
+                        <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                            <i class="fas fa-eye" id="password-eye"></i>
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="form-group">
                     <label for="confirm_password">
-                        <svg class="icon" viewBox="0 0 24 24">
-                            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
-                        </svg>
+                        <i class="fas fa-lock"></i>
                         Konfirmasi Password
                     </label>
-                    <input type="password" id="confirm_password" name="confirm_password" required>
+                    <div class="password-input">
+                        <input type="password" id="confirm_password" name="confirm_password" required>
+                        <button type="button" class="password-toggle" onclick="togglePassword('confirm_password')">
+                            <i class="fas fa-eye" id="confirm_password-eye"></i>
+                        </button>
+                    </div>
                 </div>
                 
                 <button type="submit" class="btn">
-                    <svg class="icon" viewBox="0 0 24 24">
-                        <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                    </svg>
+                    <i class="fas fa-user-plus"></i>
                     Daftar
                 </button>
             </form>
@@ -141,5 +163,36 @@ if ($_POST) {
             </div>
         </div>
     </div>
+
+    <script>
+        function togglePassword(fieldId) {
+            const passwordField = document.getElementById(fieldId);
+            const eyeIcon = document.getElementById(fieldId + '-eye');
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        }
+
+        // Username validation
+        document.getElementById('username').addEventListener('input', function() {
+            const username = this.value;
+            const regex = /^[a-zA-Z0-9_]+$/;
+            
+            if (username.length > 0 && !regex.test(username)) {
+                this.setCustomValidity('Username hanya boleh mengandung huruf, angka, dan underscore');
+            } else if (username.length > 0 && username.length < 3) {
+                this.setCustomValidity('Username minimal 3 karakter');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    </script>
 </body>
 </html>

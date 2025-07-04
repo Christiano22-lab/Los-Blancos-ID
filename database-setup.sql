@@ -187,3 +187,134 @@ CREATE TABLE IF NOT EXISTS teams (
     country VARCHAR(100),
     founded YEAR
 );
+
+-- Additional tables for match statistics and lineups
+
+-- Table for match statistics
+CREATE TABLE IF NOT EXISTS match_statistics (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    match_id INT NOT NULL,
+    home_shots INT DEFAULT 0,
+    away_shots INT DEFAULT 0,
+    home_shots_on_target INT DEFAULT 0,
+    away_shots_on_target INT DEFAULT 0,
+    home_possession INT DEFAULT 0,
+    away_possession INT DEFAULT 0,
+    home_passes INT DEFAULT 0,
+    away_passes INT DEFAULT 0,
+    home_pass_accuracy INT DEFAULT 0,
+    away_pass_accuracy INT DEFAULT 0,
+    home_fouls INT DEFAULT 0,
+    away_fouls INT DEFAULT 0,
+    home_yellow_cards INT DEFAULT 0,
+    away_yellow_cards INT DEFAULT 0,
+    home_red_cards INT DEFAULT 0,
+    away_red_cards INT DEFAULT 0,
+    home_offsides INT DEFAULT 0,
+    away_offsides INT DEFAULT 0,
+    home_corners INT DEFAULT 0,
+    away_corners INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (match_id) REFERENCES matches(id) ON DELETE CASCADE
+);
+
+-- Table for match lineups
+CREATE TABLE IF NOT EXISTS match_lineups (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    match_id INT NOT NULL,
+    team_type ENUM('home', 'away') NOT NULL,
+    player_name VARCHAR(100) NOT NULL,
+    jersey_number INT NOT NULL,
+    position VARCHAR(50),
+    is_starter TINYINT(1) DEFAULT 1,
+    is_substitute TINYINT(1) DEFAULT 0,
+    minutes_played INT DEFAULT 0,
+    goals INT DEFAULT 0,
+    assists INT DEFAULT 0,
+    yellow_cards INT DEFAULT 0,
+    red_cards INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (match_id) REFERENCES matches(id) ON DELETE CASCADE
+);
+
+-- Insert sample match statistics for existing matches
+INSERT INTO match_statistics (match_id, home_shots, away_shots, home_shots_on_target, away_shots_on_target, 
+    home_possession, away_possession, home_passes, away_passes, home_pass_accuracy, away_pass_accuracy,
+    home_fouls, away_fouls, home_yellow_cards, away_yellow_cards, home_red_cards, away_red_cards,
+    home_offsides, away_offsides, home_corners, away_corners) 
+SELECT id, 12, 8, 4, 3, 56, 44, 648, 513, 89, 86, 4, 12, 0, 1, 0, 0, 0, 1, 5, 6
+FROM matches WHERE home_team = 'Real Madrid' AND away_team = 'Barcelona' AND status = 'finished' LIMIT 1;
+
+-- Insert sample lineups for Real Madrid vs Barcelona match
+INSERT INTO match_lineups (match_id, team_type, player_name, jersey_number, position, is_starter) 
+SELECT m.id, 'home', 'Luka Modrić', 10, 'Midfielder', 1
+FROM matches m WHERE m.home_team = 'Real Madrid' AND m.away_team = 'Barcelona' AND m.status = 'finished' LIMIT 1;
+
+INSERT INTO match_lineups (match_id, team_type, player_name, jersey_number, position, is_starter) 
+SELECT m.id, 'home', 'Rodrygo Goes', 11, 'Forward', 1
+FROM matches m WHERE m.home_team = 'Real Madrid' AND m.away_team = 'Barcelona' AND m.status = 'finished' LIMIT 1;
+
+INSERT INTO match_lineups (match_id, team_type, player_name, jersey_number, position, is_starter) 
+SELECT m.id, 'home', 'Dani Ceballos', 19, 'Midfielder', 1
+FROM matches m WHERE m.home_team = 'Real Madrid' AND m.away_team = 'Barcelona' AND m.status = 'finished' LIMIT 1;
+
+INSERT INTO match_lineups (match_id, team_type, player_name, jersey_number, position, is_starter) 
+SELECT m.id, 'home', 'Brahim Díaz', 21, 'Forward', 1
+FROM matches m WHERE m.home_team = 'Real Madrid' AND m.away_team = 'Barcelona' AND m.status = 'finished' LIMIT 1;
+
+INSERT INTO match_lineups (match_id, team_type, player_name, jersey_number, position, is_starter) 
+SELECT m.id, 'home', 'Jacobo Ramón', 31, 'Defender', 1
+FROM matches m WHERE m.home_team = 'Real Madrid' AND m.away_team = 'Barcelona' AND m.status = 'finished' LIMIT 1;
+
+INSERT INTO match_lineups (match_id, team_type, player_name, jersey_number, position, is_starter) 
+SELECT m.id, 'home', 'Andriy Lunin', 13, 'Goalkeeper', 1
+FROM matches m WHERE m.home_team = 'Real Madrid' AND m.away_team = 'Barcelona' AND m.status = 'finished' LIMIT 1;
+
+INSERT INTO match_lineups (match_id, team_type, player_name, jersey_number, position, is_starter) 
+SELECT m.id, 'home', 'Lucas Vázquez', 17, 'Defender', 1
+FROM matches m WHERE m.home_team = 'Real Madrid' AND m.away_team = 'Barcelona' AND m.status = 'finished' LIMIT 1;
+
+INSERT INTO match_lineups (match_id, team_type, player_name, jersey_number, position, is_starter) 
+SELECT m.id, 'home', 'Fran González', 26, 'Midfielder', 0
+FROM matches m WHERE m.home_team = 'Real Madrid' AND m.away_team = 'Barcelona' AND m.status = 'finished' LIMIT 1;
+
+INSERT INTO match_lineups (match_id, team_type, player_name, jersey_number, position, is_starter) 
+SELECT m.id, 'home', 'Youssef Enríquez Lekhedim', 29, 'Midfielder', 0
+FROM matches m WHERE m.home_team = 'Real Madrid' AND m.away_team = 'Barcelona' AND m.status = 'finished' LIMIT 1;
+
+INSERT INTO match_lineups (match_id, team_type, player_name, jersey_number, position, is_starter) 
+SELECT m.id, 'home', 'Chema Andrés', 36, 'Forward', 0
+FROM matches m WHERE m.home_team = 'Real Madrid' AND m.away_team = 'Barcelona' AND m.status = 'finished' LIMIT 1;
+
+INSERT INTO match_lineups (match_id, team_type, player_name, jersey_number, position, is_starter) 
+SELECT m.id, 'home', 'Víctor Muñoz', 44, 'Defender', 0
+FROM matches m WHERE m.home_team = 'Real Madrid' AND m.away_team = 'Barcelona' AND m.status = 'finished' LIMIT 1;
+
+INSERT INTO match_lineups (match_id, team_type, player_name, jersey_number, position, is_starter) 
+SELECT m.id, 'home', 'Mario Martín', 50, 'Midfielder', 0
+FROM matches m WHERE m.home_team = 'Real Madrid' AND m.away_team = 'Barcelona' AND m.status = 'finished' LIMIT 1;
+
+-- Insert sample away team lineups
+INSERT INTO match_lineups (match_id, team_type, player_name, jersey_number, position, is_starter) 
+SELECT m.id, 'away', 'Samson Baidoo', 6, 'Defender', 1
+FROM matches m WHERE m.home_team = 'Real Madrid' AND m.away_team = 'Barcelona' AND m.status = 'finished' LIMIT 1;
+
+INSERT INTO match_lineups (match_id, team_type, player_name, jersey_number, position, is_starter) 
+SELECT m.id, 'away', 'Karim Onisiwo', 9, 'Forward', 1
+FROM matches m WHERE m.home_team = 'Real Madrid' AND m.away_team = 'Barcelona' AND m.status = 'finished' LIMIT 1;
+
+INSERT INTO match_lineups (match_id, team_type, player_name, jersey_number, position, is_starter) 
+SELECT m.id, 'away', 'Yorbe Vertessen', 11, 'Forward', 1
+FROM matches m WHERE m.home_team = 'Real Madrid' AND m.away_team = 'Barcelona' AND m.status = 'finished' LIMIT 1;
+
+INSERT INTO match_lineups (match_id, team_type, player_name, jersey_number, position, is_starter) 
+SELECT m.id, 'away', 'Maurits Kjærgaard', 14, 'Midfielder', 1
+FROM matches m WHERE m.home_team = 'Real Madrid' AND m.away_team = 'Barcelona' AND m.status = 'finished' LIMIT 1;
+
+INSERT INTO match_lineups (match_id, team_type, player_name, jersey_number, position, is_starter) 
+SELECT m.id, 'away', 'Adam Daghim', 28, 'Forward', 1
+FROM matches m WHERE m.home_team = 'Real Madrid' AND m.away_team = 'Barcelona' AND m.status = 'finished' LIMIT 1;
+
+INSERT INTO match_lineups (match_id, team_type, player_name, jersey_number, position, is_starter) 
+SELECT m.id, 'away', 'Sota Kitano', 8, 'Midfielder', 1
+FROM matches m WHERE m.home_team = 'Real Madrid' AND m.away_team = 'Barcelona' AND m.status = 'finished' LIMIT 1;

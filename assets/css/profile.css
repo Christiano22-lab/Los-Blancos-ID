@@ -1,138 +1,451 @@
-
-/* === PROFILE PAGE STYLING: REAL MADRID THEME === */
-
-/* General Reset */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #ffffff; /* White background */
-    color: #003da5; /* Royal blue text (Real Madrid blue) */
-}
-
-.container {
-    max-width: 1000px;
-    margin: 40px auto;
-    padding: 20px;
-}
-
-.profile-container {
-    background-color: #ffffff;
-    border: 2px solid #003da5;
-    border-radius: 12px;
-    padding: 30px;
-    box-shadow: 0 8px 25px rgba(0, 61, 165, 0.2);
-}
-
-.profile-header h2 {
-    color: #003da5;
-    margin-bottom: 5px;
-}
-
-.profile-header p {
-    color: #555;
-    font-size: 14px;
-    margin-bottom: 25px;
-}
-
-.success-message,
-.error-message {
-    padding: 12px 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    font-weight: bold;
-}
-
-.success-message {
-    background-color: #e6f5e9;
-    color: #2e7d32;
-    border: 1px solid #b5e2b9;
-}
-
-.error-message {
-    background-color: #fceaea;
-    color: #d32f2f;
-    border: 1px solid #f5c2c7;
-}
-
-.profile-content {
+/* Profile Page Styles */
+.profile-main {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    padding: 2rem 0;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+  
+  .profile-container {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    animation: fadeInUp 0.6s ease-out;
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Profile Header */
+  .profile-header {
+    background: linear-gradient(135deg, #3b82f6, #1e40af);
+    color: white;
+    padding: 3rem 2rem;
     display: flex;
-    flex-wrap: wrap;
-    gap: 30px;
-}
-
-.profile-info, .profile-form {
-    flex: 1 1 45%;
-}
-
-.profile-info h3, .profile-form h3 {
-    color: #003da5;
-    margin-bottom: 15px;
-    border-bottom: 2px solid #f7c600; /* Real Madrid yellow */
-    padding-bottom: 5px;
-}
-
-.info-item {
-    margin-bottom: 15px;
-    font-size: 15px;
-}
-
-.info-item strong {
-    color: #003da5;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-label {
-    display: block;
-    margin-bottom: 6px;
+    align-items: center;
+    gap: 2rem;
+  }
+  
+  .profile-avatar {
+    font-size: 4rem;
+    opacity: 0.9;
+  }
+  
+  .profile-title h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  
+  .profile-title p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+  }
+  
+  /* Alerts */
+  .alert {
+    margin: 2rem;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 500;
+    animation: slideDown 0.4s ease-out;
+  }
+  
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .alert-success {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+  }
+  
+  .alert-error {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
+  
+  /* Profile Content */
+  .profile-content {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+    padding: 2rem;
+  }
+  
+  /* Info Card */
+  .info-card {
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 2rem;
+    height: fit-content;
+  }
+  
+  .info-card h3 {
+    color: #1e40af;
+    font-size: 1.25rem;
     font-weight: 600;
-}
-
-input[type="text"],
-input[type="email"],
-input[type="password"] {
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .info-grid {
+    display: grid;
+    gap: 1.5rem;
+  }
+  
+  .info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .info-item label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  .info-item span {
+    font-size: 1rem;
+    color: #1f2937;
+    font-weight: 500;
+  }
+  
+  /* Role Badge */
+  .role-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: capitalize;
+  }
+  
+  .role-admin {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+  }
+  
+  .role-user {
+    background: rgba(59, 130, 246, 0.1);
+    color: #2563eb;
+  }
+  
+  /* Status Badge */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  
+  .status-active {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+  }
+  
+  .status-active i {
+    font-size: 0.5rem;
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+  
+  /* Form Card */
+  .form-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 2rem;
+  }
+  
+  .form-card h3 {
+    color: #1e40af;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  /* Form Elements */
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    color: #374151;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  
+  .form-group label i {
+    width: 16px;
+    color: #6b7280;
+  }
+  
+  .form-group input {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 14px;
-}
-
-input[type="text"]:focus,
-input[type="email"]:focus,
-input[type="password"]:focus {
-    border-color: #003da5;
+    padding: 0.875rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+    color: #1f2937;
+  }
+  
+  .form-group input:focus {
     outline: none;
-}
-
-.btn-update {
-    background-color: #003da5;
-    color: #ffffff;
-    padding: 10px 20px;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    transform: translateY(-1px);
+  }
+  
+  /* Password Section */
+  .password-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e5e7eb;
+  }
+  
+  .password-section h4 {
+    color: #1f2937;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .password-note {
+    background: rgba(59, 130, 246, 0.05);
+    border: 1px solid rgba(59, 130, 246, 0.1);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.5rem;
+    color: #1e40af;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  /* Password Input */
+  .password-input {
+    position: relative;
+  }
+  
+  .password-input input {
+    padding-right: 3rem;
+  }
+  
+  .password-toggle {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
     border: none;
-    border-radius: 6px;
-    font-weight: bold;
+    color: #6b7280;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.btn-update:hover {
-    background-color: #002c7f;
-}
-
-footer {
-    text-align: center;
-    margin-top: 40px;
-    padding: 20px;
-    background-color: #f9f9f9;
-    color: #999;
-    font-size: 14px;
-    border-top: 1px solid #eee;
-}
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: color 0.2s ease;
+  }
+  
+  .password-toggle:hover {
+    color: #3b82f6;
+  }
+  
+  .password-toggle:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+  }
+  
+  /* Form Actions */
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e5e7eb;
+  }
+  
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .btn-primary {
+    background: linear-gradient(135deg, #3b82f6, #1e40af);
+    color: white;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+  }
+  
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #1e40af, #1e3a8a);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+  }
+  
+  .btn-secondary {
+    background: #f8fafc;
+    color: #6b7280;
+    border: 2px solid #e5e7eb;
+  }
+  
+  .btn-secondary:hover {
+    background: #f1f5f9;
+    color: #374151;
+    border-color: #d1d5db;
+    transform: translateY(-1px);
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .profile-content {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      padding: 1.5rem;
+    }
+  
+    .profile-header {
+      flex-direction: column;
+      text-align: center;
+      padding: 2rem 1.5rem;
+    }
+  
+    .profile-title h1 {
+      font-size: 2rem;
+    }
+  
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+  
+    .form-actions {
+      flex-direction: column;
+    }
+  
+    .btn {
+      justify-content: center;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .container {
+      padding: 0 0.5rem;
+    }
+  
+    .profile-container {
+      border-radius: 16px;
+    }
+  
+    .profile-header {
+      padding: 1.5rem 1rem;
+    }
+  
+    .profile-title h1 {
+      font-size: 1.75rem;
+    }
+  
+    .info-card,
+    .form-card {
+      padding: 1.5rem;
+    }
+  
+    .alert {
+      margin: 1rem;
+      padding: 0.875rem 1rem;
+    }
+  }
+  
+  /* Input validation styles */
+  .form-group input:invalid:not(:focus):not(:placeholder-shown) {
+    border-color: #ef4444;
+    background-color: rgba(239, 68, 68, 0.05);
+  }
+  
+  .form-group input:valid:not(:focus):not(:placeholder-shown) {
+    border-color: #10b981;
+    background-color: rgba(16, 185, 129, 0.05);
+  }
+  
+  /* Loading state */
+  .btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  .btn:disabled:hover {
+    transform: none;
+  }
+  

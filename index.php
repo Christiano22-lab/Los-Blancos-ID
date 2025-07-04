@@ -67,7 +67,7 @@ include 'includes/header.php';
                     <article class="news-card <?php echo $index === 0 ? 'featured' : ''; ?>">
                         <div class="news-image">
                             <img src="<?php echo !empty($news['image']) 
-                                ? 'assets/images/' . htmlspecialchars($news['image']) : '/placeholder.svg?height=300&width=400'; ?>" 
+                                ? 'assets/images/news/' . htmlspecialchars($news['image']) : '/placeholder.svg?height=300&width=400'; ?>" 
                                 alt="<?php echo htmlspecialchars($news['title']); ?>"
                                 onerror="this.src='/placeholder.svg?height=300&width=400'">
                             <div class="news-category-badge">

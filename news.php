@@ -191,7 +191,7 @@ include 'includes/header.php';
                             }
                         }
                         ?>
-                        <img src="<?php echo !empty($article['image']) ? 'assets/images/' . htmlspecialchars($article   ['image']) : 'assets/images/default-news.jpg'; ?>" 
+                        <img src="<?php echo !empty($article['image']) ? 'assets/images/news/' . htmlspecialchars($article['image']) : 'assets/images/default-news.jpg'; ?>"
                         alt="<?php echo htmlspecialchars($article['title']); ?>"
                         onerror="this.src='assets/images/default-news.jpg'"
                         loading="lazy">

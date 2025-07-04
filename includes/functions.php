@@ -63,6 +63,33 @@ function login_user($email, $password) {
     return false;
 }
 
+// New function to support login with username or email
+function login_user_with_username_or_email($login_input, $password) {
+    $login_input = db_escape($login_input);
+    
+    // Try to find user by email or username
+    $query = "SELECT * FROM users WHERE email = '$login_input' OR username = '$login_input' LIMIT 1";
+    $result = db_query($query);
+    
+    if (db_num_rows($result) == 1) {
+        $user = db_fetch_array($result);
+        
+        // Check password
+        if (password_verify($password, $user['password']) || md5($password) === $user['password']) {
+            // Password is correct, create session
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_name'] = $user['name'];
+            $_SESSION['user_email'] = $user['email'];
+            $_SESSION['user_role'] = $user['role'];
+            $_SESSION['username'] = $user['username'] ?? $user['name'];
+            
+            return true;
+        }
+    }
+    
+    return false;
+}
+
 function logout_user() {
     // Unset all session variables
     $_SESSION = array();
@@ -127,7 +154,6 @@ function get_match_by_id($id) {
     return null;
 }
 
-
 function display_message() {
     if (isset($_SESSION['message'])) {
         $message = $_SESSION['message'];
@@ -178,7 +204,6 @@ function get_gallery_images($category = null, $limit = null) {
     
     return [];
 }
-
 
 // Player functions
 function get_team_players() {
@@ -630,6 +655,7 @@ function create_dummy_users_data() {
         db_query("CREATE TABLE users (
             id INT AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
+            username VARCHAR(50) UNIQUE,
             email VARCHAR(100) UNIQUE NOT NULL,
             password VARCHAR(255) NOT NULL,
             role ENUM('user', 'admin') DEFAULT 'user',
@@ -647,6 +673,7 @@ function create_dummy_users_data() {
         $users = [
             [
                 'name' => 'Admin',
+                'username' => 'admin',
                 'email' => 'admin@realmadrid.com',
                 'password' => password_hash('admin123', PASSWORD_DEFAULT),
                 'role' => 'admin',
@@ -654,6 +681,7 @@ function create_dummy_users_data() {
             ],
             [
                 'name' => 'Carlos Mendoza',
+                'username' => 'carlos_mendoza',
                 'email' => 'carlos@example.com',
                 'password' => password_hash('user123', PASSWORD_DEFAULT),
                 'role' => 'user',
@@ -661,6 +689,7 @@ function create_dummy_users_data() {
             ],
             [
                 'name' => 'Maria Rodriguez',
+                'username' => 'maria_rodriguez',
                 'email' => 'maria@example.com',
                 'password' => password_hash('user123', PASSWORD_DEFAULT),
                 'role' => 'user',
@@ -670,16 +699,18 @@ function create_dummy_users_data() {
         
         foreach ($users as $user) {
             $name = db_escape($user['name']);
+            $username = db_escape($user['username']);
             $email = db_escape($user['email']);
             $password = $user['password'];
             $role = db_escape($user['role']);
             $profile_image = db_escape($user['profile_image']);
             
-            db_query("INSERT INTO users (name, email, password, role, profile_image, created_at) 
-                     VALUES ('$name', '$email', '$password', '$role', '$profile_image', NOW())");
+            db_query("INSERT INTO users (name, username, email, password, role, profile_image, created_at) 
+                     VALUES ('$name', '$username', '$email', '$password', '$role', '$profile_image', NOW())");
         }
     }
 }
+
 /**
  * Add gallery image
  */
@@ -698,9 +729,35 @@ function add_gallery_image($title, $description, $image_url, $category) {
     
     return false;
 }
+
+function create_dummy_gallery_data() {
+    // Cek apakah tabel gallery ada
+    $check_table = db_query("SHOW TABLES LIKE 'gallery'");
+    if (db_num_rows($check_table) == 0) {
+        // Buat tabel gallery dengan struktur yang benar
+        $create_table_query = "CREATE TABLE gallery (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            title VARCHAR(255) NOT NULL,
+            description TEXT,
+            image_url VARCHAR(255) NOT NULL,
+            thumbnail_url VARCHAR(255),
+            category VARCHAR(50),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )";
+        
+        if (!db_query($create_table_query)) {
+            error_log("Failed to create gallery table: " . mysqli_error(db_connect()));
+            return false;
+        }
+    }
     
     // Cek apakah sudah ada data gallery
     $check_data = db_query("SELECT COUNT(*) as count FROM gallery");
+    if (!$check_data) {
+        error_log("Failed to check gallery data: " . mysqli_error(db_connect()));
+        return false;
+    }
+    
     $data = db_fetch_array($check_data);
     
     if ($data['count'] == 0) {
@@ -709,706 +766,539 @@ function add_gallery_image($title, $description, $image_url, $category) {
             [
                 'title' => 'Santiago Bernabéu Stadium',
                 'description' => 'Stadion ikonik Real Madrid yang telah menjadi saksi berbagai kemenangan bersejarah',
-                'image_url' => 'assets/images/gallery/santiago-bernabeu.jpg',
+                'image_url' => '/placeholder.svg?height=400&width=600',
                 'category' => 'Stadium'
             ],
             [
                 'title' => 'Champions League Celebration 2024',
                 'description' => 'Momen perayaan kemenangan Liga Champions yang penuh emosi dan kebahagiaan',
-                'image_url' => 'assets/images/gallery/champions-celebration.jpg',
+                'image_url' => '/placeholder.svg?height=400&width=600',
                 'category' => 'Celebrations'
             ],
             [
                 'title' => 'El Clásico Victory',
                 'description' => 'Kemenangan gemilang atas Barcelona di pertandingan El Clásico yang tak terlupakan',
-                'image_url' => 'assets/images/gallery/clasico-victory.jpg',
+                'image_url' => '/placeholder.svg?height=400&width=600',
                 'category' => 'Matches'
             ],
             [
                 'title' => 'Team Training Session',
                 'description' => 'Sesi latihan intensif para pemain di fasilitas training Valdebebas',
-                'image_url' => 'assets/images/gallery/training-session.jpg',
+                'image_url' => '/placeholder.svg?height=400&width=600',
                 'category' => 'Training'
             ],
             [
                 'title' => 'Madridista Fans',
                 'description' => 'Antusiasme luar biasa dari para penggemar setia Real Madrid',
-                'image_url' => 'assets/images/gallery/madridista-fans.jpg',
-            [
-                'title' => 'Madridista Fans',
-                'description' => 'Antusiasme luar biasa dari para penggemar setia Real Madrid',
-                'image_url' => 'assets/images/gallery/madridista-fans.jpg',
+                'image_url' => '/placeholder.svg?height=400&width=600',
                 'category' => 'Fans'
             ],
             [
                 'title' => 'Bellingham Goal Celebration',
                 'description' => 'Jude Bellingham merayakan gol spektakuler di pertandingan penting',
-                'image_url' => 'assets/images/gallery/bellingham-goal.jpg',
+                'image_url' => '/placeholder.svg?height=400&width=600',
                 'category' => 'Matches'
-            ],
-            [
-                'title' => 'Trophy Presentation',
-                'description' => 'Momen penyerahan trofi kepada para juara yang membanggakan',
-                'image_url' => 'assets/images/gallery/trophy-presentation.jpg',
-                'category' => 'Celebrations'
-            ],
-            [
-                'title' => 'Bernabéu Night View',
-                'description' => 'Pemandangan malam Santiago Bernabéu yang memukau dengan pencahayaan modern',
-                'image_url' => 'assets/images/gallery/bernabeu-night.jpg',
-                'category' => 'Stadium'
-            ],
-            [
-                'title' => 'Team Huddle',
-                'description' => 'Momen kebersamaan tim sebelum pertandingan besar dimulai',
-                'image_url' => 'assets/images/gallery/team-huddle.jpg',
-                'category' => 'Team'
-            ],
-            [
-                'title' => 'Vintage Real Madrid',
-                'description' => 'Foto klasik yang menunjukkan sejarah panjang dan gemilang Los Blancos',
-                'image_url' => 'assets/images/gallery/vintage-madrid.jpg',
-                'category' => 'Team'
             ]
-            ]
-            ];
+        ];
+        
         foreach ($images as $image) {
             $title = db_escape($image['title']);
             $description = db_escape($image['description']);
             $image_url = db_escape($image['image_url']);
             $category = db_escape($image['category']);
             
-            db_query("INSERT INTO gallery (title, description, image_url, category, created_at) 
-                     VALUES ('$title', '$description', '$image_url', '$category', NOW())");
+            $insert_query = "INSERT INTO gallery (title, description, image_url, category, created_at) 
+                           VALUES ('$title', '$description', '$image_url', '$category', NOW())";
+            
+            if (!db_query($insert_query)) {
+                error_log("Failed to insert gallery image: " . mysqli_error(db_connect()));
+            }
         }
     }
+    
+    return true;
+}
 
-    function get_communities($platform = null, $limit = null) {
-        create_dummy_communities_data();
-        
-        $query = "SELECT c.*, u.name as creator_name 
-                  FROM communities c 
-                  LEFT JOIN users u ON c.created_by = u.id 
-                  WHERE c.is_active = 1";
-        
-        if ($platform) {
-            $platform = db_escape($platform);
-            $query .= " AND c.platform = '$platform'";
-        }
-        
-        $query .= " ORDER BY c.is_official DESC, c.member_count DESC, c.created_at DESC";
-        
-        if ($limit) {
-            $limit = (int)$limit;
-            $query .= " LIMIT $limit";
-        }
-        
-        $result = db_query($query);
-        return db_fetch_all($result);
-    }
+// Additional functions for community, media, news, etc. (keeping existing functions)
+function get_communities($platform = null, $limit = null) {
+    create_dummy_communities_data();
     
-    /**
-     * Get community by ID
-     */
-    function get_community_by_id($id) {
-        $id = (int)$id;
-        $query = "SELECT c.*, u.name as creator_name 
-                  FROM communities c 
-                  LEFT JOIN users u ON c.created_by = u.id 
-                  WHERE c.id = $id AND c.is_active = 1 
-                  LIMIT 1";
-        $result = db_query($query);
-        
-        if (db_num_rows($result) == 1) {
-            return db_fetch_array($result);
-        }
-        
-        return null;
-    }
+    $query = "SELECT c.*, u.name as creator_name 
+              FROM communities c 
+              LEFT JOIN users u ON c.created_by = u.id 
+              WHERE c.is_active = 1";
     
-    /**
-     * Add new community
-     */
-    function add_community($name, $description, $platform, $link, $member_count = 0, $user_id = null) {
-        $name = db_escape($name);
-        $description = db_escape($description);
+    if ($platform) {
         $platform = db_escape($platform);
-        $link = db_escape($link);
-        $member_count = (int)$member_count;
-        $user_id = $user_id ? (int)$user_id : 'NULL';
-        
-        $query = "INSERT INTO communities (name, description, platform, link, member_count, created_by, created_at) 
-                  VALUES ('$name', '$description', '$platform', '$link', $member_count, $user_id, NOW())";
-        
-        if (db_query($query)) {
-            return db_insert_id();
-        }
-        
-        return false;
+        $query .= " AND c.platform = '$platform'";
     }
     
-    /**
-     * Get platform icon
-     */
-    function get_platform_icon($platform) {
-        $icons = [
-            'instagram' => 'fab fa-instagram',
-            'whatsapp' => 'fab fa-whatsapp',
-            'facebook' => 'fab fa-facebook-f',
-            'telegram' => 'fab fa-telegram-plane',
-            'discord' => 'fab fa-discord'
-        ];
-        
-        return isset($icons[$platform]) ? $icons[$platform] : 'fas fa-users';
+    $query .= " ORDER BY c.is_official DESC, c.member_count DESC, c.created_at DESC";
+    
+    if ($limit) {
+        $limit = (int)$limit;
+        $query .= " LIMIT $limit";
     }
     
-    /**
-     * Get platform color
-     */
-    function get_platform_color($platform) {
-        $colors = [
-            'instagram' => '#E4405F',
-            'whatsapp' => '#25D366',
-            'facebook' => '#1877F2',
-            'telegram' => '#0088CC',
-            'discord' => '#5865F2'
-        ];
-        
-        return isset($colors[$platform]) ? $colors[$platform] : '#6c757d';
-    }
-    
-    /**
-     * Format member count
-     */
-    function format_member_count($count) {
-        if ($count >= 1000000) {
-            return number_format($count / 1000000, 1) . 'M';
-        } elseif ($count >= 1000) {
-            return number_format($count / 1000, 1) . 'K';
-        }
-        return number_format($count);
-    }
-    
-    /**
-     * Create dummy communities data
-     */
-    function create_dummy_communities_data() {
-        // Cek apakah tabel communities ada
-        $check_table = db_query("SHOW TABLES LIKE 'communities'");
-        if (db_num_rows($check_table) == 0) {
-            // Buat tabel communities
-            $create_table_query = "CREATE TABLE communities (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                name VARCHAR(255) NOT NULL,
-                description TEXT,
-                platform ENUM('instagram', 'whatsapp', 'facebook', 'telegram', 'discord') NOT NULL,
-                link VARCHAR(500) NOT NULL,
-                image VARCHAR(255),
-                member_count INT DEFAULT 0,
-                is_official TINYINT(1) DEFAULT 0,
-                is_active TINYINT(1) DEFAULT 1,
-                created_by INT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-            )";
-            
-            if (!db_query($create_table_query)) {
-                error_log("Failed to create communities table: " . mysqli_error(db_connect()));
-                return false;
-            }
-            
-            // Pastikan ada user
-            create_dummy_users_data();
-            
-            // Insert sample communities
-            $communities = [
-                [
-                    'name' => 'Los Blancos ID Official',
-                    'description' => 'Komunitas resmi Los Blancos Indonesia di Instagram. Dapatkan update terbaru, foto eksklusif, dan konten menarik seputar Real Madrid.',
-                    'platform' => 'instagram',
-                    'link' => 'https://instagram.com/losblancosid_official',
-                    'member_count' => 15420,
-                    'is_official' => 1
-                ],
-                [
-                    'name' => 'Madridista Indonesia',
-                    'description' => 'Grup WhatsApp untuk diskusi Real Madrid Indonesia. Berbagi berita, analisis pertandingan, dan berinteraksi dengan sesama Madridista.',
-                    'platform' => 'whatsapp',
-                    'link' => 'https://chat.whatsapp.com/invite/madridista-indonesia',
-                    'member_count' => 2847,
-                    'is_official' => 1
-                ],
-                [
-                    'name' => 'Real Madrid Fans Indonesia',
-                    'description' => 'Komunitas Facebook terbesar penggemar Real Madrid di Indonesia. Diskusi, berita, dan berbagi momen kebahagiaan bersama.',
-                    'platform' => 'facebook',
-                    'link' => 'https://facebook.com/groups/realmadridfansindonesia',
-                    'member_count' => 8932,
-                    'is_official' => 1
-                ],
-                [
-                    'name' => 'Madridista Jakarta',
-                    'description' => 'Komunitas Madridista khusus wilayah Jakarta dan sekitarnya. Nonton bareng, diskusi, dan acara offline.',
-                    'platform' => 'whatsapp',
-                    'link' => 'https://chat.whatsapp.com/invite/madridista-jakarta',
-                    'member_count' => 1256,
-                    'is_official' => 0
-                ],
-                [
-                    'name' => 'Los Blancos Surabaya',
-                    'description' => 'Perkumpulan penggemar Real Madrid di Surabaya. Aktif mengadakan nobar dan kegiatan sosial.',
-                    'platform' => 'instagram',
-                    'link' => 'https://instagram.com/losblancossurabaya',
-                    'member_count' => 892,
-                    'is_official' => 0
-                ]
-            ];
-            
-            foreach ($communities as $community) {
-                $name = db_escape($community['name']);
-                $description = db_escape($community['description']);
-                $platform = db_escape($community['platform']);
-                $link = db_escape($community['link']);
-                $member_count = (int)$community['member_count'];
-                $is_official = (int)$community['is_official'];
-                
-                $insert_query = "INSERT INTO communities (name, description, platform, link, member_count, is_official, created_by, created_at) 
-                               VALUES ('$name', '$description', '$platform', '$link', $member_count, $is_official, 1, NOW())";
-                
-                if (!db_query($insert_query)) {
-                    error_log("Failed to insert community: " . mysqli_error(db_connect()));
-                }
-            }
-        }
-        
-        return true;
-    }
-    
-    /**
-     * Format date Indonesian
-     */
-    function format_date_id($date_string) {
-        $months = [
-            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
-            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
-            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
-        ];
-        
-        $date = new DateTime($date_string);
-        $day = $date->format('d');
-        $month = $months[(int)$date->format('n')];
-        $year = $date->format('Y');
-        
-        return "$day $month $year";
-    }
-    
-    /**
-     * Generate excerpt
-     */
-    function generate_excerpt($text, $length = 150) {
-        if (strlen($text) <= $length) {
-            return $text;
-        }
-        
-        $excerpt = substr($text, 0, $length);
-        $last_space = strrpos($excerpt, ' ');
-        
-        if ($last_space !== false) {
-            $excerpt = substr($excerpt, 0, $last_space);
-        }
-        
-        return $excerpt . '...';
-    }
+    $result = db_query($query);
+    return db_fetch_all($result);
+}
 
-    function get_media_videos($limit = null) {
-        create_simple_media_data();
-        
-        $query = "SELECT * FROM media_videos ORDER BY created_at DESC";
-        
-        if ($limit) {
-            $limit = (int)$limit;
-            $query .= " LIMIT $limit";
-        }
-        
-        $result = db_query($query);
-        return db_fetch_all($result);
+function get_community_by_id($id) {
+    $id = (int)$id;
+    $query = "SELECT c.*, u.name as creator_name 
+              FROM communities c 
+              LEFT JOIN users u ON c.created_by = u.id 
+              WHERE c.id = $id AND c.is_active = 1 
+              LIMIT 1";
+    $result = db_query($query);
+    
+    if (db_num_rows($result) == 1) {
+        return db_fetch_array($result);
     }
     
-    /**
-     * Get media photos
-     */
-    function get_media_photos($limit = null) {
-        // Reuse gallery function for photos
-        return get_gallery_images(null, $limit);
+    return null;
+}
+
+function add_community($name, $description, $platform, $link, $member_count = 0, $user_id = null) {
+    $name = db_escape($name);
+    $description = db_escape($description);
+    $platform = db_escape($platform);
+    $link = db_escape($link);
+    $member_count = (int)$member_count;
+    $user_id = $user_id ? (int)$user_id : 'NULL';
+    
+    $query = "INSERT INTO communities (name, description, platform, link, member_count, created_by, created_at) 
+              VALUES ('$name', '$description', '$platform', '$link', $member_count, $user_id, NOW())";
+    
+    if (db_query($query)) {
+        return db_insert_id();
     }
     
-    function create_dummy_gallery_data() {
-        // Cek apakah tabel gallery ada
-        $check_table = db_query("SHOW TABLES LIKE 'gallery'");
-        if (db_num_rows($check_table) == 0) {
-            // Buat tabel gallery dengan struktur yang benar
-            $create_table_query = "CREATE TABLE gallery (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                title VARCHAR(255) NOT NULL,
-                description TEXT,
-                image_url VARCHAR(255) NOT NULL,
-                thumbnail_url VARCHAR(255),
-                category VARCHAR(50),
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )";
-            
-            if (!db_query($create_table_query)) {
-                error_log("Failed to create gallery table: " . mysqli_error(db_connect()));
-                return false;
-            }
-        }
+    return false;
+}
+
+function get_platform_icon($platform) {
+    $icons = [
+        'instagram' => 'fab fa-instagram',
+        'whatsapp' => 'fab fa-whatsapp',
+        'facebook' => 'fab fa-facebook-f',
+        'telegram' => 'fab fa-telegram-plane',
+        'discord' => 'fab fa-discord'
+    ];
+    
+    return isset($icons[$platform]) ? $icons[$platform] : 'fas fa-users';
+}
+
+function get_platform_color($platform) {
+    $colors = [
+        'instagram' => '#E4405F',
+        'whatsapp' => '#25D366',
+        'facebook' => '#1877F2',
+        'telegram' => '#0088CC',
+        'discord' => '#5865F2'
+    ];
+    
+    return isset($colors[$platform]) ? $colors[$platform] : '#6c757d';
+}
+
+function format_member_count($count) {
+    if ($count >= 1000000) {
+        return number_format($count / 1000000, 1) . 'M';
+    } elseif ($count >= 1000) {
+        return number_format($count / 1000, 1) . 'K';
+    }
+    return number_format($count);
+}
+
+function create_dummy_communities_data() {
+    // Cek apakah tabel communities ada
+    $check_table = db_query("SHOW TABLES LIKE 'communities'");
+    if (db_num_rows($check_table) == 0) {
+        // Buat tabel communities
+        $create_table_query = "CREATE TABLE communities (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(255) NOT NULL,
+            description TEXT,
+            platform ENUM('instagram', 'whatsapp', 'facebook', 'telegram', 'discord') NOT NULL,
+            link VARCHAR(500) NOT NULL,
+            image VARCHAR(255),
+            member_count INT DEFAULT 0,
+            is_official TINYINT(1) DEFAULT 0,
+            is_active TINYINT(1) DEFAULT 1,
+            created_by INT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )";
         
-        // Cek apakah sudah ada data gallery
-        $check_data = db_query("SELECT COUNT(*) as count FROM gallery");
-        if (!$check_data) {
-            error_log("Failed to check gallery data: " . mysqli_error(db_connect()));
+        if (!db_query($create_table_query)) {
+            error_log("Failed to create communities table: " . mysqli_error(db_connect()));
             return false;
         }
         
-        $data = db_fetch_array($check_data);
+        // Pastikan ada user
+        create_dummy_users_data();
         
-        if ($data['count'] == 0) {
-            // Tambahkan beberapa gambar dummy
-            $images = [
+        // Insert sample communities
+        $communities = [
+            [
+                'name' => 'Los Blancos ID Official',
+                'description' => 'Komunitas resmi Los Blancos Indonesia di Instagram. Dapatkan update terbaru, foto eksklusif, dan konten menarik seputar Real Madrid.',
+                'platform' => 'instagram',
+                'link' => 'https://instagram.com/losblancosid_official',
+                'member_count' => 15420,
+                'is_official' => 1
+            ],
+            [
+                'name' => 'Madridista Indonesia',
+                'description' => 'Grup WhatsApp untuk diskusi Real Madrid Indonesia. Berbagi berita, analisis pertandingan, dan berinteraksi dengan sesama Madridista.',
+                'platform' => 'whatsapp',
+                'link' => 'https://chat.whatsapp.com/invite/madridista-indonesia',
+                'member_count' => 2847,
+                'is_official' => 1
+            ],
+            [
+                'name' => 'Real Madrid Fans Indonesia',
+                'description' => 'Komunitas Facebook terbesar penggemar Real Madrid di Indonesia. Diskusi, berita, dan berbagi momen kebahagiaan bersama.',
+                'platform' => 'facebook',
+                'link' => 'https://facebook.com/groups/realmadridfansindonesia',
+                'member_count' => 8932,
+                'is_official' => 1
+            ],
+            [
+                'name' => 'Madridista Jakarta',
+                'description' => 'Komunitas Madridista khusus wilayah Jakarta dan sekitarnya. Nonton bareng, diskusi, dan acara offline.',
+                'platform' => 'whatsapp',
+                'link' => 'https://chat.whatsapp.com/invite/madridista-jakarta',
+                'member_count' => 1256,
+                'is_official' => 0
+            ],
+            [
+                'name' => 'Los Blancos Surabaya',
+                'description' => 'Perkumpulan penggemar Real Madrid di Surabaya. Aktif mengadakan nobar dan kegiatan sosial.',
+                'platform' => 'instagram',
+                'link' => 'https://instagram.com/losblancossurabaya',
+                'member_count' => 892,
+                'is_official' => 0
+            ]
+        ];
+        
+        foreach ($communities as $community) {
+            $name = db_escape($community['name']);
+            $description = db_escape($community['description']);
+            $platform = db_escape($community['platform']);
+            $link = db_escape($community['link']);
+            $member_count = (int)$community['member_count'];
+            $is_official = (int)$community['is_official'];
+            
+            $insert_query = "INSERT INTO communities (name, description, platform, link, member_count, is_official, created_by, created_at) 
+                           VALUES ('$name', '$description', '$platform', '$link', $member_count, $is_official, 1, NOW())";
+            
+            if (!db_query($insert_query)) {
+                error_log("Failed to insert community: " . mysqli_error(db_connect()));
+            }
+        }
+    }
+    
+    return true;
+}
+
+function format_date_id($date_string) {
+    $months = [
+        1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+        5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+        9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+    ];
+    
+    $date = new DateTime($date_string);
+    $day = $date->format('d');
+    $month = $months[(int)$date->format('n')];
+    $year = $date->format('Y');
+    
+    return "$day $month $year";
+}
+
+function generate_excerpt($text, $length = 150) {
+    if (strlen($text) <= $length) {
+        return $text;
+    }
+    
+    $excerpt = substr($text, 0, $length);
+    $last_space = strrpos($excerpt, ' ');
+    
+    if ($last_space !== false) {
+        $excerpt = substr($excerpt, 0, $last_space);
+    }
+    
+    return $excerpt . '...';
+}
+
+function get_media_videos($limit = null) {
+    create_simple_media_data();
+    
+    $query = "SELECT * FROM media_videos ORDER BY created_at DESC";
+    
+    if ($limit) {
+        $limit = (int)$limit;
+        $query .= " LIMIT $limit";
+    }
+    
+    $result = db_query($query);
+    return db_fetch_all($result);
+}
+
+function get_media_photos($limit = null) {
+    // Reuse gallery function for photos
+    return get_gallery_images(null, $limit);
+}
+
+function create_simple_media_data() {
+    // Create media_videos table
+    $check_videos_table = db_query("SHOW TABLES LIKE 'media_videos'");
+    if (db_num_rows($check_videos_table) == 0) {
+        $create_videos_table = "CREATE TABLE media_videos (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            title VARCHAR(255) NOT NULL,
+            description TEXT,
+            youtube_id VARCHAR(50) NOT NULL,
+            embed_url VARCHAR(500) NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )";
+        
+        if (db_query($create_videos_table)) {
+            // Insert sample videos with real YouTube IDs
+            $videos = [
                 [
-                    'title' => 'Santiago Bernabéu Stadium',
-                    'description' => 'Stadion ikonik Real Madrid yang telah menjadi saksi berbagai kemenangan bersejarah',
-                    'image_url' => '/placeholder.svg?height=400&width=600',
-                    'category' => 'Stadium'
+                    'title' => 'Real Madrid vs Barcelona - El Clasico Highlights',
+                    'description' => 'Highlight pertandingan El Clasico terbaru dengan gol-gol spektakuler',
+                    'youtube_id' => 'dQw4w9WgXcQ',
+                    'embed_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ'
                 ],
                 [
-                    'title' => 'Champions League Celebration 2024',
-                    'description' => 'Momen perayaan kemenangan Liga Champions yang penuh emosi dan kebahagiaan',
-                    'image_url' => '/placeholder.svg?height=400&width=600',
-                    'category' => 'Celebrations'
+                    'title' => 'Bellingham Best Goals 2024',
+                    'description' => 'Kompilasi gol-gol terbaik Jude Bellingham musim ini',
+                    'youtube_id' => 'dQw4w9WgXcQ',
+                    'embed_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ'
                 ],
                 [
-                    'title' => 'El Clásico Victory',
-                    'description' => 'Kemenangan gemilang atas Barcelona di pertandingan El Clásico yang tak terlupakan',
-                    'image_url' => '/placeholder.svg?height=400&width=600',
-                    'category' => 'Matches'
+                    'title' => 'Real Madrid Training Session',
+                    'description' => 'Sesi latihan tim di Valdebebas sebelum pertandingan besar',
+                    'youtube_id' => 'dQw4w9WgXcQ',
+                    'embed_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ'
                 ],
                 [
-                    'title' => 'Team Training Session',
-                    'description' => 'Sesi latihan intensif para pemain di fasilitas training Valdebebas',
-                    'image_url' => '/placeholder.svg?height=400&width=600',
-                    'category' => 'Training'
+                    'title' => 'Vinicius Jr Skills & Goals',
+                    'description' => 'Skill dan gol-gol menakjubkan dari Vinicius Junior',
+                    'youtube_id' => 'dQw4w9WgXcQ',
+                    'embed_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ'
                 ],
                 [
-                    'title' => 'Madridista Fans',
-                    'description' => 'Antusiasme luar biasa dari para penggemar setia Real Madrid',
-                    'image_url' => '/placeholder.svg?height=400&width=600',
-                    'category' => 'Fans'
+                    'title' => 'Champions League Final Highlights',
+                    'description' => 'Momen-momen terbaik dari final Liga Champions',
+                    'youtube_id' => 'dQw4w9WgXcQ',
+                    'embed_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ'
                 ],
                 [
-                    'title' => 'Bellingham Goal Celebration',
-                    'description' => 'Jude Bellingham merayakan gol spektakuler di pertandingan penting',
-                    'image_url' => '/placeholder.svg?height=400&width=600',
-                    'category' => 'Matches'
+                    'title' => 'Ancelotti Tactical Analysis',
+                    'description' => 'Analisis taktik dari pelatih Carlo Ancelotti',
+                    'youtube_id' => 'dQw4w9WgXcQ',
+                    'embed_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ'
                 ]
             ];
             
-            foreach ($images as $image) {
-                $title = db_escape($image['title']);
-                $description = db_escape($image['description']);
-                $image_url = db_escape($image['image_url']);
-                $category = db_escape($image['category']);
+            foreach ($videos as $video) {
+                $title = db_escape($video['title']);
+                $description = db_escape($video['description']);
+                $youtube_id = db_escape($video['youtube_id']);
+                $embed_url = db_escape($video['embed_url']);
                 
-                $insert_query = "INSERT INTO gallery (title, description, image_url, category, created_at) 
-                               VALUES ('$title', '$description', '$image_url', '$category', NOW())";
-                
-                if (!db_query($insert_query)) {
-                    error_log("Failed to insert gallery image: " . mysqli_error(db_connect()));
-                }
+                db_query("INSERT INTO media_videos (title, description, youtube_id, embed_url, created_at) 
+                         VALUES ('$title', '$description', '$youtube_id', '$embed_url', NOW())");
             }
         }
-        
-        return true;
     }
+    
+    return true;
+}
 
-    /**
-     * Create simple media data
-     */
-    function create_simple_media_data() {
-        // Create media_videos table
-        $check_videos_table = db_query("SHOW TABLES LIKE 'media_videos'");
-        if (db_num_rows($check_videos_table) == 0) {
-            $create_videos_table = "CREATE TABLE media_videos (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                title VARCHAR(255) NOT NULL,
-                description TEXT,
-                youtube_id VARCHAR(50) NOT NULL,
-                embed_url VARCHAR(500) NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )";
-            
-            if (db_query($create_videos_table)) {
-                // Insert sample videos with real YouTube IDs
-                $videos = [
-                    [
-                        'title' => 'Real Madrid vs Barcelona - El Clasico Highlights',
-                        'description' => 'Highlight pertandingan El Clasico terbaru dengan gol-gol spektakuler',
-                        'youtube_id' => 'dQw4w9WgXcQ',
-                        'embed_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ'
-                    ],
-                    [
-                        'title' => 'Bellingham Best Goals 2024',
-                        'description' => 'Kompilasi gol-gol terbaik Jude Bellingham musim ini',
-                        'youtube_id' => 'dQw4w9WgXcQ',
-                        'embed_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ'
-                    ],
-                    [
-                        'title' => 'Real Madrid Training Session',
-                        'description' => 'Sesi latihan tim di Valdebebas sebelum pertandingan besar',
-                        'youtube_id' => 'dQw4w9WgXcQ',
-                        'embed_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ'
-                    ],
-                    [
-                        'title' => 'Vinicius Jr Skills & Goals',
-                        'description' => 'Skill dan gol-gol menakjubkan dari Vinicius Junior',
-                        'youtube_id' => 'dQw4w9WgXcQ',
-                        'embed_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ'
-                    ],
-                    [
-                        'title' => 'Champions League Final Highlights',
-                        'description' => 'Momen-momen terbaik dari final Liga Champions',
-                        'youtube_id' => 'dQw4w9WgXcQ',
-                        'embed_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ'
-                    ],
-                    [
-                        'title' => 'Ancelotti Tactical Analysis',
-                        'description' => 'Analisis taktik dari pelatih Carlo Ancelotti',
-                        'youtube_id' => 'dQw4w9WgXcQ',
-                        'embed_url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ'
-                    ]
-                ];
-                
-                foreach ($videos as $video) {
-                    $title = db_escape($video['title']);
-                    $description = db_escape($video['description']);
-                    $youtube_id = db_escape($video['youtube_id']);
-                    $embed_url = db_escape($video['embed_url']);
-                    
-                    db_query("INSERT INTO media_videos (title, description, youtube_id, embed_url, created_at) 
-                             VALUES ('$title', '$description', '$youtube_id', '$embed_url', NOW())");
-                }
-            }
-        }
-        
-        return true;
+function get_news_by_id($id) {
+    create_dummy_news_data();
+    
+    $id = (int)$id;
+    $query = "SELECT * FROM news WHERE id = $id LIMIT 1";
+    $result = db_query($query);
+    
+    if (db_num_rows($result) == 1) {
+        return db_fetch_array($result);
     }
+    
+    return null;
+}
 
-    function get_news_by_id($id) {
-        create_dummy_news_data();
-        
-        $id = (int)$id;
-        $query = "SELECT * FROM news WHERE id = $id LIMIT 1";
-        $result = db_query($query);
-        
-        if (db_num_rows($result) == 1) {
-            return db_fetch_array($result);
-        }
-        
-        return null;
-    }
+function get_related_news($current_id, $limit = 3) {
+    create_dummy_news_data();
     
-    /**
-     * Get related news
-     */
-    function get_related_news($current_id, $limit = 3) {
-        create_dummy_news_data();
-        
-        $current_id = (int)$current_id;
-        $limit = (int)$limit;
-        
-        // Get current article category
-        $current_query = "SELECT category FROM news WHERE id = $current_id LIMIT 1";
-        $current_result = db_query($current_query);
-        $current_article = db_fetch_array($current_result);
-        
-        if ($current_article) {
-            $category = db_escape($current_article['category']);
-            
-            // Get related articles from same category
-            $query = "SELECT * FROM news 
-                      WHERE category = '$category' 
-                      AND id != $current_id 
-                      ORDER BY created_at DESC 
-                      LIMIT $limit";
-        } else {
-            // Fallback: get latest articles
-            $query = "SELECT * FROM news 
-                      WHERE id != $current_id 
-                      ORDER BY created_at DESC 
-                      LIMIT $limit";
-        }
-        
-        $result = db_query($query);
-        return db_fetch_all($result);
-    }
+    $current_id = (int)$current_id;
+    $limit = (int)$limit;
     
-    /**
-     * Format date for display
-     */
-    function format_date($date_string) {
-        if (empty($date_string)) {
-            return '';
-        }
-        
-        try {
-            $date = new DateTime($date_string);
-            return $date->format('F j, Y');
-        } catch (Exception $e) {
-            return $date_string;
-        }
-    }
+    // Get current article category
+    $current_query = "SELECT category FROM news WHERE id = $current_id LIMIT 1";
+    $current_result = db_query($current_query);
+    $current_article = db_fetch_array($current_result);
     
-    /**
-     * Get time ago string
-     */
-    function get_time_ago($datetime) {
-        if (empty($datetime)) {
-            return '';
-        }
+    if ($current_article) {
+        $category = db_escape($current_article['category']);
         
-        try {
-            $time = strtotime($datetime);
-            $now = time();
-            $diff = $now - $time;
-            
-            if ($diff < 60) {
-                return "Just now";
-            } elseif ($diff < 3600) {
-                $mins = round($diff / 60);
-                return $mins . " minute" . ($mins > 1 ? "s" : "") . " ago";
-            } elseif ($diff < 86400) {
-                $hours = round($diff / 3600);
-                return $hours . " hour" . ($hours > 1 ? "s" : "") . " ago";
-            } elseif ($diff < 604800) {
-                $days = round($diff / 86400);
-                return $days . " day" . ($days > 1 ? "s" : "") . " ago";
-            } else {
-                return format_date($datetime);
-            }
-        } catch (Exception $e) {
-            return $datetime;
-        }
-    }
-    
-    /**
-     * Add comment to news
-     */
-    function add_comment($news_id, $user_id, $comment) {
-        $news_id = (int)$news_id;
-        $user_id = (int)$user_id;
-        $comment = db_escape($comment);
-        
-        $query = "INSERT INTO comments (news_id, user_id, comment, created_at) 
-                  VALUES ($news_id, $user_id, '$comment', NOW())";
-        
-        if (db_query($query)) {
-            return db_insert_id();
-        }
-        
-        return false;
-    }
-    
-    
-    /**
-     * Get comments for news
-     */
-    function get_news_comments($news_id) {
-        $news_id = (int)$news_id;
-        
-        $query = "SELECT c.*, u.name, u.profile_image 
-                  FROM comments c 
-                  LEFT JOIN users u ON c.user_id = u.id 
-                  WHERE c.news_id = $news_id 
-                  ORDER BY c.created_at DESC";
-        
-        $result = db_query($query);
-        return db_fetch_all($result);
-    }
-    
-    /**
-     * Create comments table if not exists
-     */
-    function create_comments_table() {
-        $check_table = db_query("SHOW TABLES LIKE 'comments'");
-        if (db_num_rows($check_table) == 0) {
-            $create_table_query = "CREATE TABLE comments (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                news_id INT NOT NULL,
-                user_id INT NOT NULL,
-                comment TEXT NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (news_id) REFERENCES news(id) ON DELETE CASCADE,
-                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-            )";
-            
-            if (!db_query($create_table_query)) {
-                error_log("Failed to create comments table: " . mysqli_error(db_connect()));
-                return false;
-            }
-        }
-        
-        return true;
-    }
-    
-    /**
-     * Update news view count
-     */
-    function increment_news_views($news_id) {
-        $news_id = (int)$news_id;
-        $query = "UPDATE news SET views = views + 1 WHERE id = $news_id";
-        return db_query($query);
-    }
-    
-    /**
-     * Get news by category
-     */
-    function get_news_by_category($category, $limit = null) {
-        create_dummy_news_data();
-        
-        $category = db_escape($category);
-        $query = "SELECT * FROM news WHERE category = '$category' ORDER BY created_at DESC";
-        
-        if ($limit) {
-            $limit = (int)$limit;
-            $query .= " LIMIT $limit";
-        }
-        
-        $result = db_query($query);
-        return db_fetch_all($result);
-    }
-    
-    /**
-     * Search news
-     */
-    function search_news($keyword, $limit = null) {
-        create_dummy_news_data();
-        
-        $keyword = db_escape($keyword);
+        // Get related articles from same category
         $query = "SELECT * FROM news 
-                  WHERE title LIKE '%$keyword%' 
-                  OR content LIKE '%$keyword%' 
-                  OR excerpt LIKE '%$keyword%'
-                  ORDER BY created_at DESC";
-        
-        if ($limit) {
-            $limit = (int)$limit;
-            $query .= " LIMIT $limit";
-        }
-        
-        $result = db_query($query);
-        return db_fetch_all($result);
+                  WHERE category = '$category' 
+                  AND id != $current_id 
+                  ORDER BY created_at DESC 
+                  LIMIT $limit";
+    } else {
+        // Fallback: get latest articles
+        $query = "SELECT * FROM news 
+                  WHERE id != $current_id 
+                  ORDER BY created_at DESC 
+                  LIMIT $limit";
     }
     
+    $result = db_query($query);
+    return db_fetch_all($result);
+}
+
+function format_date($date_string) {
+    if (empty($date_string)) {
+        return '';
+    }
+    
+    try {
+        $date = new DateTime($date_string);
+        return $date->format('F j, Y');
+    } catch (Exception $e) {
+        return $date_string;
+    }
+}
+
+function get_time_ago($datetime) {
+    if (empty($datetime)) {
+        return '';
+    }
+    
+    try {
+        $time = strtotime($datetime);
+        $now = time();
+        $diff = $now - $time;
+        
+        if ($diff < 60) {
+            return "Just now";
+        } elseif ($diff < 3600) {
+            $mins = round($diff / 60);
+            return $mins . " minute" . ($mins > 1 ? "s" : "") . " ago";
+        } elseif ($diff < 86400) {
+            $hours = round($diff / 3600);
+            return $hours . " hour" . ($hours > 1 ? "s" : "") . " ago";
+        } elseif ($diff < 604800) {
+            $days = round($diff / 86400);
+            return $days . " day" . ($days > 1 ? "s" : "") . " ago";
+        } else {
+            return format_date($datetime);
+        }
+    } catch (Exception $e) {
+        return $datetime;
+    }
+}
+
+function add_comment($news_id, $user_id, $comment) {
+    $news_id = (int)$news_id;
+    $user_id = (int)$user_id;
+    $comment = db_escape($comment);
+    
+    $query = "INSERT INTO comments (news_id, user_id, comment, created_at) 
+              VALUES ($news_id, $user_id, '$comment', NOW())";
+    
+    if (db_query($query)) {
+        return db_insert_id();
+    }
+    
+    return false;
+}
+
+function get_news_comments($news_id) {
+    $news_id = (int)$news_id;
+    
+    $query = "SELECT c.*, u.name, u.profile_image 
+              FROM comments c 
+              LEFT JOIN users u ON c.user_id = u.id 
+              WHERE c.news_id = $news_id 
+              ORDER BY c.created_at DESC";
+    
+    $result = db_query($query);
+    return db_fetch_all($result);
+}
+
+function create_comments_table() {
+    $check_table = db_query("SHOW TABLES LIKE 'comments'");
+    if (db_num_rows($check_table) == 0) {
+        $create_table_query = "CREATE TABLE comments (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            news_id INT NOT NULL,
+            user_id INT NOT NULL,
+            comment TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (news_id) REFERENCES news(id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )";
+        
+        if (!db_query($create_table_query)) {
+            error_log("Failed to create comments table: " . mysqli_error(db_connect()));
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+function increment_news_views($news_id) {
+    $news_id = (int)$news_id;
+    $query = "UPDATE news SET views = views + 1 WHERE id = $news_id";
+    return db_query($query);
+}
+
+function get_news_by_category($category, $limit = null) {
+    create_dummy_news_data();
+    
+    $category = db_escape($category);
+    $query = "SELECT * FROM news WHERE category = '$category' ORDER BY created_at DESC";
+    
+    if ($limit) {
+        $limit = (int)$limit;
+        $query .= " LIMIT $limit";
+    }
+    
+    $result = db_query($query);
+    return db_fetch_all($result);
+}
+
+function search_news($keyword, $limit = null) {
+    create_dummy_news_data();
+    
+    $keyword = db_escape($keyword);
+    $query = "SELECT * FROM news 
+              WHERE title LIKE '%$keyword%' 
+              OR content LIKE '%$keyword%' 
+              OR excerpt LIKE '%$keyword%'
+              ORDER BY created_at DESC";
+    
+    if ($limit) {
+        $limit = (int)$limit;
+        $query .= " LIMIT $limit";
+    }
+    
+    $result = db_query($query);
+    return db_fetch_all($result);
+}
+
 /**
  * Get match details by ID
  */
@@ -1521,6 +1411,7 @@ function formatDuration($minutes) {
     return $hours . 'h ' . $remaining_minutes . 'm';
 }
 
+
 /**
  * Get match winner
  */
@@ -1544,6 +1435,5 @@ function getMatchWinner($match) {
 function canEditMatch($user_role) {
     return in_array($user_role, ['admin', 'moderator']);
 }
-
 
 ?>

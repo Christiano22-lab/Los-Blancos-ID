@@ -13,49 +13,22 @@ if (is_logged_in()) {
 $error = '';
 
 if ($_POST) {
-    $email = sanitize_input($_POST['email']);
+    $login_input = sanitize_input($_POST['login_input']); // Could be email or username
     $password = $_POST['password'];
-    if (!empty($email) && !empty($password)) 
-    {
-        if (login_user($email, $password)) 
-        {
+    
+    if (!empty($login_input) && !empty($password)) {
+        if (login_user_with_username_or_email($login_input, $password)) {
             $_SESSION['message'] = 'Login berhasil! Selamat datang ' . $_SESSION['user_name'];
             $_SESSION['message_type'] = 'success';
             header("Location: index.php");
             exit();
-        } else 
-        {
-            $error = 'Email atau password salah!';
+        } else {
+            $error = 'Username/Email atau password salah!';
         }
     } else {
         $error = 'Harap isi semua field!';
     }
 }
-
-// Debug info (hapus setelah login berhasil)
-if ($_POST && !empty($_POST['email'])) {
-    $debug_email = sanitize_input($_POST['email']);
-    $debug_query = "SELECT id, email, name, role FROM users WHERE email = '" . db_escape($debug_email) . "'";
-    $debug_result = db_query($debug_query);
-    
-    if (db_num_rows($debug_result) > 0) {
-        $debug_user = db_fetch_array($debug_result);
-        echo "<div style='background: #f0f0f0; padding: 10px; margin: 10px; border: 1px solid #ccc;'>";
-        echo "<strong>Debug Info:</strong><br>";
-        echo "User found: " . $debug_user['name'] . "<br>";
-        echo "Role: " . $debug_user['role'] . "<br>";
-        echo "Email: " . $debug_user['email'] . "<br>";
-        echo "</div>";
-    } else {
-        echo "<div style='background: #ffeeee; padding: 10px; margin: 10px; border: 1px solid #ff0000;'>";
-        echo "<strong>Debug:</strong> No user found with email: " . htmlspecialchars($debug_email);
-        echo "</div>";
-    }
-}
-
-
-
-
 ?>
 
 <!DOCTYPE html>
@@ -65,6 +38,7 @@ if ($_POST && !empty($_POST['email'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Los Blancos ID</title>
     <link rel="stylesheet" href="assets/css/login.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <div class="auth-container">
@@ -77,49 +51,65 @@ if ($_POST && !empty($_POST['email'])) {
             
             <?php if($error): ?>
                 <div class="alert alert-error">
-                    <svg class="icon" viewBox="0 0 24 24">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                    </svg>
+                    <i class="fas fa-exclamation-circle"></i>
                     <?php echo htmlspecialchars($error); ?>
                 </div>
             <?php endif; ?>
             
             <form method="POST" class="auth-form">
                 <div class="form-group">
-                    <label for="email">
-                        <svg class="icon" viewBox="0 0 24 24">
-                            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-                        </svg>
-                        Email
+                    <label for="login_input">
+                        <i class="fas fa-user"></i>
+                        Username atau Email
                     </label>
-                    <input type="email" id="email" name="email" 
-                           value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>" 
-                           required autocomplete="email">
+                    <input type="text" id="login_input" name="login_input" 
+                           value="<?php echo isset($_POST['login_input']) ? htmlspecialchars($_POST['login_input']) : ''; ?>" 
+                           placeholder="Masukkan username atau email Anda"
+                           required autocomplete="username">
                 </div>
                 
                 <div class="form-group">
                     <label for="password">
-                        <svg class="icon" viewBox="0 0 24 24">
-                            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
-                        </svg>
+                        <i class="fas fa-lock"></i>
                         Password
                     </label>
-                    <input type="password" id="password" name="password" 
-                           required autocomplete="current-password">
+                    <div class="password-input">
+                        <input type="password" id="password" name="password" 
+                               required autocomplete="current-password">
+                        <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                            <i class="fas fa-eye" id="password-eye"></i>
+                        </button>
+                    </div>
                 </div>
                 
                 <button type="submit" class="btn">
-                    <svg class="icon" viewBox="0 0 24 24">
-                        <path d="M11 7L9.6 8.4l2.6 2.6H2v2h10.2l-2.6 2.6L11 17l5-5-5-5zm9 12h-8v2h8c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-8v2h8v14z"/>
-                    </svg>
+                    <i class="fas fa-sign-in-alt"></i>
                     Masuk
                 </button>
             </form>
+            
             <div class="auth-links">
                 <p>Belum punya akun? <a href="register.php">Daftar di sini</a></p>
                 <p><a href="index.php">← Kembali ke Beranda</a></p>
             </div>
         </div>
     </div>
+
+    <script>
+        function togglePassword(fieldId) {
+            const passwordField = document.getElementById(fieldId);
+            const eyeIcon = document.getElementById(fieldId + '-eye');
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        }
+    </script>
 </body>
 </html>
