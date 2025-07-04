@@ -143,12 +143,12 @@ if ($_POST) {
 }
 
 // Set default profile image if empty
-$profile_image_name = $user['profile_image'] ?? '';
-$profile_image_path = 'assets/images/profiles/' . $profile_image_name;
+$profile_image_path = $user['profile_image'] ?? '';
 
-$profile_image_src = (!empty($profile_image_name) && file_exists($profile_image_path))
+$profile_image_src = (!empty($profile_image_path) && file_exists($profile_image_path))
     ? $profile_image_path
     : 'assets/images/user-image.jpg';
+
 
 ?>
 

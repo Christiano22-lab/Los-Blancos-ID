@@ -28,6 +28,11 @@ if (!$article) {
 $page_title = $article['title'];
 $page_description = $article['excerpt'] ?? substr(strip_tags($article['content']), 0, 160);
 
+$article_image_path = !empty($article['image']) && file_exists('assets/images/news/' . $article['image'])
+    ? 'assets/images/news/' . htmlspecialchars($article['image'])
+    : 'assets/images/default-news.jpg';
+
+
 // Create comments table if not exists
 create_comments_table();
 
@@ -102,10 +107,10 @@ include 'includes/header.php';
 
             <?php if (!empty($article['image'])): ?>
                 <div class="article-featured-image">
-                <img src="<?php echo !empty($article['image']) ? 'assets/images/' . htmlspecialchars($article   ['image']) : 'assets/images/default-news.jpg'; ?>" 
-                        alt="<?php echo htmlspecialchars($article['title']); ?>"
-                        onerror="this.src='assets/images/default-news.jpg'"
-                        loading="lazy">
+                    <img src="<?php echo $article_image_path; ?>"
+                    alt="<?php echo htmlspecialchars($article['title']); ?>"
+                    onerror="this.src='assets/images/default-news.jpg'"
+                    loading="lazy">
                 </div>
             <?php endif; ?>
 
@@ -163,11 +168,20 @@ include 'includes/header.php';
                                 </div>
                             <?php else: ?>
                                 <?php foreach ($comments as $comment): ?>
+                                    <?php
+                                    $profile_image_name = $comment['profile_image'] ?? '';
+                                    $profile_image_path = 'assets/images/profiles/' . $profile_image_name;
+
+                                    $profile_image_src = (!empty($profile_image_name) && file_exists($profile_image_path))
+                                        ? $profile_image_path
+                                        : 'assets/images/user-image.jpg';
+                                    ?>
                                     <div class="comment">
                                         <div class="comment-avatar">
-                                            <img src="<?php echo !empty($comment['profile_image']) ? htmlspecialchars($comment['profile_image']) : '/placeholder.svg?height=50&width=50'; ?>" 
-                                                 alt="<?php echo htmlspecialchars($comment['name'] ?? 'User'); ?>"
-                                                 loading="lazy">
+                                            <img src="<?php echo $profile_image_src; ?>"
+                                                alt="<?php echo htmlspecialchars($comment['name'] ?? 'User'); ?>"
+                                                loading="lazy"
+                                                onerror="this.src='assets/images/user-image.jpg'">
                                         </div>
                                         <div class="comment-content">
                                             <div class="comment-header">
@@ -199,10 +213,10 @@ include 'includes/header.php';
                                     <div class="related-article">
                                         <a href="news-detail.php?id=<?php echo $related['id']; ?>">
                                             <div class="related-image">
-                                                <img src="<?php echo htmlspecialchars($related['image'] ?? '/placeholder.svg?height=100&width=150'); ?>" 
-                                                     alt="<?php echo htmlspecialchars($related['title']); ?>"
-                                                     onerror="this.src='/placeholder.svg?height=100&width=150'"
-                                                     loading="lazy">
+                                                <img src="<?php echo 'assets/images/news/' . ($related['image'] ?? 'placeholder.svg'); ?>"
+                                                alt="<?php echo htmlspecialchars($related['title']); ?>"
+                                                onerror="this.src='assets/images/placeholder.svg'"
+                                                loading="lazy">
                                             </div>
                                             <div class="related-content">
                                                 <h4><?php echo htmlspecialchars($related['title']); ?></h4>
@@ -220,13 +234,7 @@ include 'includes/header.php';
                     <div class="sidebar-section">
                         <h3><i class="fas fa-envelope"></i> Newsletter</h3>
                         <div class="newsletter-box">
-                            <p>Subscribe to our newsletter for the latest Real Madrid updates.</p>
-                            <form action="#" method="post" class="newsletter-form">
-                                <input type="email" name="email" placeholder="Your email address" required>
-                                <button type="submit" class="btn btn-secondary">
-                                    <i class="fas fa-paper-plane"></i> Subscribe
-                                </button>
-                            </form>
+                            <p>Semoga Bermanfaat Sob</p>
                         </div>
                     </div>
                 </aside>
