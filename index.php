@@ -28,101 +28,114 @@ include 'includes/header.php';
 <link rel="stylesheet" href="assets/css/index.css">
 <link rel="stylesheet" href="assets/css/news-carousel.css">
 
-
-<!-- Hero Section with Sign In/Sign Up -->
+<!-- Hero Section - True Full Screen -->
 <section class="hero-section">
+    <div class="hero-overlay"></div>
     <div class="hero-content">
-        <h1>Welcome to Real Madrid Fan Club</h1>
+        <div class="hero-badge">
+            <i class="fas fa-crown"></i>
+            <span>Los Blancos Indonesia</span>
+        </div>
+        <h1>Welcome to Los Blancos ID </h1>
         <p>The ultimate destination for Madridistas worldwide. Join our community of passionate fans celebrating the greatest club in football history.</p>
         <div class="hero-buttons">
-            <?php if (!is_logged_in()): ?>
-                <a href="login.php" class="btn btn-primary">Sign In</a>
-                <a href="register.php" class="btn btn-secondary">Sign Up</a>
-            <?php else: ?>
-                <a href="profile.php" class="btn btn-primary">My Profile</a>
-                <a href="community.php" class="btn btn-secondary">Community</a>
-            <?php endif; ?>
-        </div>
-    </div>
-</section>
-
-<!-- Latest News Carousel Section -->
-<section class="news-carousel-section">
-    <div class="container">
-        <div class="section-header">
-            <h2><i class="fas fa-newspaper"></i> Latest News</h2>
-            <a href="news.php" class="view-all-btn">
-                View All News <i class="fas fa-arrow-right"></i>
+            <a href="about.php" class="btn btn-hero-primary">
+                <i class="fas fa-info-circle"></i> About Us
+            </a>
+            <a href="community.php" class="btn btn-hero-secondary">
+                <i class="fas fa-users"></i> Join Community
             </a>
         </div>
+    </div>
+</section>
+
+<!-- Latest News Section - White Background -->
+<section class="section section-white">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-badge">
+                <i class="fas fa-newspaper"></i>
+                <span>Latest Updates</span>
+            </div>
+            <h2>Latest News</h2>
+            <p>Stay updated with the latest Real Madrid news, match reports, and exclusive content from our community.</p>
+        </div>
         
-        <div class="news-carousel-container">
-            <div class="news-carousel" id="newsCarousel">
-                <?php if (!empty($latest_news)): ?>
-                    <?php foreach ($latest_news as $news): ?>
-                        <div class="news-slide">
-                            <div class="news-box">
-                                <div class="news-image">
-                                    <img src="<?php echo !empty($news['image']) 
-                                        ? 'assets/images/' . htmlspecialchars($news['image']) : 'assets/images/default-news.jpg'; ?>" alt="<?php echo htmlspecialchars($news['title']); ?>"
-                                        onerror="this.src='assets/images/default-news.jpg'">
-                                    <div class="news-overlay">
-                                        <span class="news-category"><?php echo htmlspecialchars($news['category']); ?></span>
-                                    </div>
-                                </div>
-                                <div class="news-content">
-                                    <h3>
-                                        <a href="news-detail.php?id=<?php echo $news['id']; ?>">
-                                            <?php echo htmlspecialchars($news['title']); ?>
-                                        </a>
-                                    </h3>
-                                    <p class="news-excerpt"><?php echo htmlspecialchars(substr($news['excerpt'], 0, 100)) . '...'; ?></p>
-                                    <div class="news-meta">
-                                        <span class="date"><i class="fas fa-calendar"></i> <?php echo format_date($news['date']); ?></span>
-                                        <span class="views"><i class="fas fa-eye"></i> <?php echo number_format($news['views'] ?? 0); ?></span>
-                                    </div>
-                                </div>
+        <div class="news-grid">
+            <?php if (!empty($latest_news)): ?>
+                <?php foreach ($latest_news as $index => $news): ?>
+                    <article class="news-card <?php echo $index === 0 ? 'featured' : ''; ?>">
+                        <div class="news-image">
+                            <img src="<?php echo !empty($news['image']) 
+                                ? 'assets/images/' . htmlspecialchars($news['image']) : '/placeholder.svg?height=300&width=400'; ?>" 
+                                alt="<?php echo htmlspecialchars($news['title']); ?>"
+                                onerror="this.src='/placeholder.svg?height=300&width=400'">
+                            <div class="news-category-badge">
+                                <?php echo htmlspecialchars($news['category']); ?>
                             </div>
                         </div>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <div class="news-slide">
-                        <div class="no-news-box">
-                            <i class="fas fa-newspaper"></i>
-                            <h3>No News Available</h3>
-                            <p>Check back later for updates!</p>
+                        <div class="news-content">
+                            <div class="news-meta">
+                                <span class="date">
+                                    <i class="fas fa-calendar"></i>
+                                    <?php echo format_date($news['date']); ?>
+                                </span>
+                                <span class="views">
+                                    <i class="fas fa-eye"></i>
+                                    <?php echo number_format($news['views'] ?? 0); ?>
+                                </span>
+                            </div>
+                            <h3>
+                                <a href="news-detail.php?id=<?php echo $news['id']; ?>">
+                                    <?php echo htmlspecialchars($news['title']); ?>
+                                </a>
+                            </h3>
+                            <p><?php echo htmlspecialchars(substr($news['excerpt'], 0, 120)) . '...'; ?></p>
+                            <a href="news-detail.php?id=<?php echo $news['id']; ?>" class="read-more">
+                                Read More <i class="fas fa-arrow-right"></i>
+                            </a>
                         </div>
-                    </div>
-                <?php endif; ?>
-            </div>
-            
-            <!-- Navigation buttons -->
-            <button class="carousel-btn prev-btn" id="newsPrevBtn" onclick="slideNews(-1)">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <button class="carousel-btn next-btn" id="newsNextBtn" onclick="slideNews(1)">
-                <i class="fas fa-chevron-right"></i>
-            </button>
-
-            
-            <!-- Dots indicator -->
-            <div class="carousel-dots" id="newsDots"></div>
+                    </article>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="no-content">
+                    <i class="fas fa-newspaper"></i>
+                    <h3>No News Available</h3>
+                    <p>Check back later for updates!</p>
+                </div>
+            <?php endif; ?>
+        </div>
+        
+        <div class="section-footer">
+            <a href="news.php" class="btn btn-outline">
+                <i class="fas fa-newspaper"></i>
+                View All News
+            </a>
         </div>
     </div>
 </section>
 
-<!-- Matches Section -->
-<section class="matches-section">
+<!-- Matches Section - Blue Background -->
+<section class="section section-blue">
     <div class="container">
-        <h2><i class="fas fa-calendar-check"></i> Match Center</h2>
+        <div class="section-header">
+            <div class="section-badge">
+                <i class="fas fa-futbol"></i>
+                <span>Match Center</span>
+            </div>
+            <h2>Upcoming & Recent Matches</h2>
+            <p>Follow Real Madrid's journey through all competitions with detailed match information and results.</p>
+        </div>
         
         <div class="matches-tabs">
             <div class="tab-buttons">
                 <button class="tab-btn active" data-tab="upcoming">
-                    <i class="fas fa-clock"></i> Upcoming Matches
+                    <i class="fas fa-clock"></i>
+                    <span>Upcoming</span>
                 </button>
                 <button class="tab-btn" data-tab="results">
-                    <i class="fas fa-check-circle"></i> Recent Results
+                    <i class="fas fa-check-circle"></i>
+                    <span>Results</span>
                 </button>
             </div>
             
@@ -133,37 +146,53 @@ include 'includes/header.php';
                         <?php foreach ($upcoming_matches as $match): ?>
                             <div class="match-card">
                                 <div class="match-header">
-                                    <span class="competition"><?php echo htmlspecialchars($match['competition']); ?></span>
-                                    <span class="match-date"><?php echo format_date($match['match_date']); ?></span>
+                                    <div class="competition-badge">
+                                        <?php echo htmlspecialchars($match['competition']); ?>
+                                    </div>
+                                    <div class="match-date">
+                                        <?php echo format_date($match['match_date']); ?>
+                                    </div>
                                 </div>
                                 <div class="match-teams">
                                     <div class="team">
-                                        <img src="<?php echo 'assets/images/' . htmlspecialchars($match['home_team_logo']); ?>" 
-                                            alt="<?php echo htmlspecialchars($match['home_team']); ?>"
-                                            onerror="this.src='assets/images/default-team.png'">
-                                        <span><?php echo htmlspecialchars($match['home_team']); ?></span>
+                                        <div class="team-logo">
+                                            <img src="<?php echo 'assets/images/' . htmlspecialchars($match['home_team_logo']); ?>" 
+                                                alt="<?php echo htmlspecialchars($match['home_team']); ?>"
+                                                onerror="this.src='/placeholder.svg?height=60&width=60'">
+                                        </div>
+                                        <div class="team-name">
+                                            <?php echo htmlspecialchars($match['home_team']); ?>
+                                        </div>
                                     </div>
-                                    <div class="vs">
-                                        <span>VS</span>
-                                        <span class="time"><?php echo htmlspecialchars($match['match_time']); ?></span>
+                                    <div class="match-vs">
+                                        <div class="vs-text">VS</div>
+                                        <div class="match-time">
+                                            <i class="fas fa-clock"></i>
+                                            <?php echo htmlspecialchars($match['match_time']); ?>
+                                        </div>
                                     </div>
                                     <div class="team">
-                                        <img src="<?php echo 'assets/images/' . htmlspecialchars($match['away_team_logo']); ?>" 
-                                            alt="<?php echo htmlspecialchars($match['away_team']); ?>"
-                                            onerror="this.src='assets/images/default-team.png'">
-                                        <span><?php echo htmlspecialchars($match['away_team']); ?></span>
+                                        <div class="team-logo">
+                                            <img src="<?php echo 'assets/images/' . htmlspecialchars($match['away_team_logo']); ?>" 
+                                                alt="<?php echo htmlspecialchars($match['away_team']); ?>"
+                                                onerror="this.src='/placeholder.svg?height=60&width=60'">
+                                        </div>
+                                        <div class="team-name">
+                                            <?php echo htmlspecialchars($match['away_team']); ?>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="match-venue">
                                     <i class="fas fa-map-marker-alt"></i>
-                                    <?php echo htmlspecialchars($match['stadium']); ?>
+                                    <span><?php echo htmlspecialchars($match['stadium']); ?></span>
                                 </div>
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <div class="no-matches">
+                        <div class="no-content">
                             <i class="fas fa-calendar-times"></i>
-                            <p>No upcoming matches scheduled.</p>
+                            <h3>No Upcoming Matches</h3>
+                            <p>Check back later for match schedules!</p>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -176,105 +205,141 @@ include 'includes/header.php';
                         <?php foreach ($recent_results as $match): ?>
                             <div class="match-card">
                                 <div class="match-header">
-                                    <span class="competition"><?php echo htmlspecialchars($match['competition']); ?></span>
-                                    <span class="match-date"><?php echo format_date($match['match_date']); ?></span>
+                                    <div class="competition-badge">
+                                        <?php echo htmlspecialchars($match['competition']); ?>
+                                    </div>
+                                    <div class="match-date">
+                                        <?php echo format_date($match['match_date']); ?>
+                                    </div>
                                 </div>
                                 <div class="match-teams">
                                     <div class="team">
-                                        <img src="<?php echo 'assets/images/' . htmlspecialchars($match['home_team_logo']); ?>" 
-                                            alt="<?php echo htmlspecialchars($match['home_team']); ?>"
-                                            onerror="this.src='assets/images/default-team.png'">
-                                        <span><?php echo htmlspecialchars($match['home_team']); ?></span>
+                                        <div class="team-logo">
+                                            <img src="<?php echo 'assets/images/' . htmlspecialchars($match['home_team_logo']); ?>" 
+                                                alt="<?php echo htmlspecialchars($match['home_team']); ?>"
+                                                onerror="this.src='/placeholder.svg?height=60&width=60'">
+                                        </div>
+                                        <div class="team-name">
+                                            <?php echo htmlspecialchars($match['home_team']); ?>
+                                        </div>
                                     </div>
-                                    <div class="score">
-                                        <span class="score-numbers">
+                                    <div class="match-score">
+                                        <div class="score-display">
                                             <?php echo $match['home_score']; ?> - <?php echo $match['away_score']; ?>
-                                        </span>
-                                        <span class="status">Full Time</span>
+                                        </div>
+                                        <div class="match-status">Full Time</div>
                                     </div>
                                     <div class="team">
-                                        <img src="<?php echo 'assets/images/' . htmlspecialchars($match['away_team_logo']); ?>" 
-                                            alt="<?php echo htmlspecialchars($match['away_team']); ?>"
-                                            onerror="this.src='assets/images/default-team.png'">
-                                        <span><?php echo htmlspecialchars($match['away_team']); ?></span>
+                                        <div class="team-logo">
+                                            <img src="<?php echo 'assets/images/' . htmlspecialchars($match['away_team_logo']); ?>" 
+                                                alt="<?php echo htmlspecialchars($match['away_team']); ?>"
+                                                onerror="this.src='/placeholder.svg?height=60&width=60'">
+                                        </div>
+                                        <div class="team-name">
+                                            <?php echo htmlspecialchars($match['away_team']); ?>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="match-venue">
                                     <i class="fas fa-map-marker-alt"></i>
-                                    <?php echo htmlspecialchars($match['stadium']); ?>
+                                    <span><?php echo htmlspecialchars($match['stadium']); ?></span>
                                 </div>
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <div class="no-matches">
+                        <div class="no-content">
                             <i class="fas fa-calendar-times"></i>
-                            <p>No recent results available.</p>
+                            <h3>No Recent Results</h3>
+                            <p>Check back later for match results!</p>
                         </div>
                     <?php endif; ?>
                 </div>
             </div>
         </div>
-    </div>
-</section>
-
-<!-- Gallery Carousel Section -->
-<section class="gallery-carousel-section">
-    <div class="container">
-        <div class="section-header">
-            <h2><i class="fas fa-images"></i> Photo Gallery</h2>
-            <a href="media.php" class="view-all-btn">
-                View All Photos <i class="fas fa-arrow-right"></i>
+        
+        <div class="section-footer">
+            <a href="matches.php" class="btn btn-outline-white">
+                <i class="fas fa-futbol"></i>
+                View All Matches
             </a>
         </div>
+    </div>
+</section>
+
+<!-- Gallery Section - White Background -->
+<section class="section section-white">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-badge">
+                <i class="fas fa-images"></i>
+                <span>Photo Gallery</span>
+            </div>
+            <h2>Memorable Moments</h2>
+            <p>Relive the greatest moments in Real Madrid history through our exclusive photo collection.</p>
+        </div>
         
-        <div class="gallery-carousel-container">
-            <div class="gallery-carousel" id="galleryCarousel">
-                <?php if (!empty($gallery_images)): ?>
-                    <?php foreach ($gallery_images as $image): ?>
-                        <div class="gallery-slide">
-                            <div class="gallery-box">
-                                <a href="<?php echo htmlspecialchars($image['image_url']); ?>" class="gallery-link" data-caption="<?php echo htmlspecialchars($image['title']); ?>">
-                                    <img src="<?php echo htmlspecialchars($image['thumbnail_url'] ?? $image['image_url']); ?>" 
-                                         alt="<?php echo htmlspecialchars($image['title']); ?>"
-                                         onerror="this.src='assets/images/default-gallery.jpg'">
-                                    <div class="gallery-overlay">
-                                        <div class="gallery-info">
-                                            <h4><?php echo htmlspecialchars($image['title']); ?></h4>
-                                            <span class="gallery-category"><?php echo htmlspecialchars($image['category']); ?></span>
-                                        </div>
-                                        <i class="fas fa-search-plus"></i>
-                                    </div>
-                                </a>
+        <div class="gallery-grid">
+            <?php if (!empty($gallery_images)): ?>
+                <?php foreach ($gallery_images as $index => $image): ?>
+                    <div class="gallery-item <?php echo $index === 0 ? 'featured' : ''; ?>">
+                        <div class="gallery-image">
+                            <img src="<?php echo htmlspecialchars($image['thumbnail_url'] ?? $image['image_url']); ?>" 
+                                 alt="<?php echo htmlspecialchars($image['title']); ?>"
+                                 onerror="this.src='/placeholder.svg?height=300&width=400'">
+                            <div class="gallery-overlay">
+                                <div class="gallery-content">
+                                    <h4><?php echo htmlspecialchars($image['title']); ?></h4>
+                                    <span class="gallery-category"><?php echo htmlspecialchars($image['category']); ?></span>
+                                </div>
+                                <div class="gallery-action">
+                                    <i class="fas fa-search-plus"></i>
+                                </div>
                             </div>
                         </div>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <div class="gallery-slide">
-                        <div class="no-gallery-box">
-                            <i class="fas fa-images"></i>
-                            <h3>No Photos Available</h3>
-                            <p>Check back later for photos!</p>
-                        </div>
                     </div>
-                <?php endif; ?>
-            </div>
-            
-            <!-- Navigation buttons -->
-            <button class="carousel-btn prev-btn" id="galleryPrevBtn" onclick="slideGallery(-1)">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <button class="carousel-btn next-btn" id="galleryNextBtn" onclick="slideGallery(1)">
-                <i class="fas fa-chevron-right"></i>
-            </button>
-
-            <!-- Dots indicator -->
-            <div class="carousel-dots" id="galleryDots"></div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="no-content">
+                    <i class="fas fa-images"></i>
+                    <h3>No Photos Available</h3>
+                    <p>Check back later for photos!</p>
+                </div>
+            <?php endif; ?>
+        </div>
+        
+        <div class="section-footer">
+            <a href="media.php" class="btn btn-outline">
+                <i class="fas fa-images"></i>
+                View All Photos
+            </a>
         </div>
     </div>
 </section>
+
+<!-- Login Prompt for Non-logged Users -->
+<?php if (!is_logged_in()): ?>
+        <div class="login-prompt-section">
+            <div class="login-prompt">
+                <div class="prompt-icon">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <div class="prompt-content">
+                    <h3>Want to Read More News?</h3>
+                    <p>Join our community to access all news articles, add your own content, and stay updated with the latest Real Madrid news!</p>
+                    <div class="prompt-actions">
+                        <a href="login.php" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt"></i> Sign In
+                        </a>
+                        <a href="register.php" class="btn btn-secondary">
+                            <i class="fas fa-user-plus"></i> Create Account
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+<?php endif; ?>
 
 <script src="assets/js/index.js"></script>
 <script src="assets/js/news-carousel.js"></script>
-
 
 <?php include 'includes/footer.php'; ?>

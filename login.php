@@ -32,6 +32,27 @@ if ($_POST) {
     }
 }
 
+// Debug info (hapus setelah login berhasil)
+if ($_POST && !empty($_POST['email'])) {
+    $debug_email = sanitize_input($_POST['email']);
+    $debug_query = "SELECT id, email, name, role FROM users WHERE email = '" . db_escape($debug_email) . "'";
+    $debug_result = db_query($debug_query);
+    
+    if (db_num_rows($debug_result) > 0) {
+        $debug_user = db_fetch_array($debug_result);
+        echo "<div style='background: #f0f0f0; padding: 10px; margin: 10px; border: 1px solid #ccc;'>";
+        echo "<strong>Debug Info:</strong><br>";
+        echo "User found: " . $debug_user['name'] . "<br>";
+        echo "Role: " . $debug_user['role'] . "<br>";
+        echo "Email: " . $debug_user['email'] . "<br>";
+        echo "</div>";
+    } else {
+        echo "<div style='background: #ffeeee; padding: 10px; margin: 10px; border: 1px solid #ff0000;'>";
+        echo "<strong>Debug:</strong> No user found with email: " . htmlspecialchars($debug_email);
+        echo "</div>";
+    }
+}
+
 
 
 

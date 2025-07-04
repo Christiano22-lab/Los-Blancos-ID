@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="assets/css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/logout-modal.css">
     <?php if (isset($extra_css)): ?>
         <?php echo $extra_css; ?>
     <?php endif; ?>
@@ -27,6 +28,7 @@
             <nav class="desktop-nav">
                 <ul>
                     <li><a href="index.php" <?php echo $current_page === 'home' ? 'class="active"' : ''; ?>>Home</a></li>
+                    <li><a href="about.php" <?php echo $current_page === 'about' ? 'class="active"' : ''; ?>>About Us</a></li>
                     <li><a href="news.php" <?php echo $current_page === 'news' ? 'class="active"' : ''; ?>>News</a></li>
                     <li><a href="matches.php" <?php echo $current_page === 'matches' ? 'class="active"' : ''; ?>>Matches</a></li>
                     <li><a href="media.php" <?php echo $current_page === 'media' ? 'class="active"' : ''; ?>>Media</a></li>
@@ -72,3 +74,5 @@
 
     <main>
         <?php display_message(); ?>
+
+    <script src="assets/js/logout-modal.js"></script>

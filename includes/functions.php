@@ -47,12 +47,14 @@ function login_user($email, $password) {
     if (db_num_rows($result) == 1) {
         $user = db_fetch_array($result);
         
-        if (password_verify($password, $user['password'])) {
+        // Check both hashed password and MD5 (for backward compatibility)
+        if (password_verify($password, $user['password']) || md5($password) === $user['password']) {
             // Password is correct, create session
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_name'] = $user['name'];
             $_SESSION['user_email'] = $user['email'];
             $_SESSION['user_role'] = $user['role'];
+            $_SESSION['username'] = $user['username'] ?? $user['name'];
             
             return true;
         }
@@ -529,7 +531,7 @@ function create_dummy_matches_data() {
     
     // Cek apakah sudah ada data matches
     $check_data = db_query("SELECT COUNT(*) as count FROM matches");
-    $data = db_fetch($check_data);
+    $data = db_fetch_array($check_data);
     
     if ($data['count'] == 0) {
         // Tambahkan matches dummy (kode yang sudah ada sebelumnya)
@@ -638,7 +640,7 @@ function create_dummy_users_data() {
     
     // Cek apakah sudah ada user
     $check_data = db_query("SELECT COUNT(*) as count FROM users");
-    $data = db_fetch($check_data);
+    $data = db_fetch_array($check_data);
     
     if ($data['count'] == 0) {
         // Buat user admin dan beberapa user dummy
@@ -732,6 +734,10 @@ function add_gallery_image($title, $description, $image_url, $category) {
                 'title' => 'Madridista Fans',
                 'description' => 'Antusiasme luar biasa dari para penggemar setia Real Madrid',
                 'image_url' => 'assets/images/gallery/madridista-fans.jpg',
+            [
+                'title' => 'Madridista Fans',
+                'description' => 'Antusiasme luar biasa dari para penggemar setia Real Madrid',
+                'image_url' => 'assets/images/gallery/madridista-fans.jpg',
                 'category' => 'Fans'
             ],
             [
@@ -764,8 +770,8 @@ function add_gallery_image($title, $description, $image_url, $category) {
                 'image_url' => 'assets/images/gallery/vintage-madrid.jpg',
                 'category' => 'Team'
             ]
-        ];
-        
+            ]
+            ];
         foreach ($images as $image) {
             $title = db_escape($image['title']);
             $description = db_escape($image['description']);
@@ -1104,18 +1110,6 @@ function add_gallery_image($title, $description, $image_url, $category) {
                     'description' => 'Jude Bellingham merayakan gol spektakuler di pertandingan penting',
                     'image_url' => '/placeholder.svg?height=400&width=600',
                     'category' => 'Matches'
-                ],
-                [
-                    'title' => 'Trophy Presentation',
-                    'description' => 'Momen penyerahan trofi kepada para juara yang membanggakan',
-                    'image_url' => '/placeholder.svg?height=400&width=600',
-                    'category' => 'Celebrations'
-                ],
-                [
-                    'title' => 'Bernabéu Night View',
-                    'description' => 'Pemandangan malam Santiago Bernabéu yang memukau dengan pencahayaan modern',
-                    'image_url' => '/placeholder.svg?height=400&width=600',
-                    'category' => 'Stadium'
                 ]
             ];
             
@@ -1553,5 +1547,3 @@ function canEditMatch($user_role) {
 
 
 ?>
-
-

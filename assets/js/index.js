@@ -17,22 +17,26 @@ document.addEventListener("DOMContentLoaded", () => {
   }, 5000)
 
   // Tab functionality
-  const tabButtons = document.querySelectorAll(".tab-btn")
-  const tabContents = document.querySelectorAll(".tab-content")
+  initMatchesTabs()
 
-  tabButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      const targetTab = button.getAttribute("data-tab")
+  // Smooth scroll for hero scroll indicator
+  initSmoothScrolling()
 
-      // Remove active class from all buttons and contents
-      tabButtons.forEach((btn) => btn.classList.remove("active"))
-      tabContents.forEach((content) => content.classList.remove("active"))
+  // Intersection Observer for animations
+  initScrollAnimations()
 
-      // Add active class to clicked button and corresponding content
-      button.classList.add("active")
-      document.getElementById(targetTab).classList.add("active")
-    })
+  // Parallax effect for hero background
+  window.addEventListener("scroll", () => {
+    const scrolled = window.pageYOffset
+    const heroBackground = document.querySelector(".hero-background")
+    if (heroBackground && scrolled < window.innerHeight) {
+      const rate = scrolled * -0.5
+      heroBackground.style.transform = `translateY(${rate}px)`
+    }
   })
+
+  // Gallery lightbox functionality (basic)
+  initGalleryLightbox()
 
   // Initialize lightbox for gallery if available
   if (typeof window.SimpleLightbox !== "undefined") {
@@ -42,6 +46,23 @@ document.addEventListener("DOMContentLoaded", () => {
       captionDelay: 250,
     })
   }
+
+  // Add loading states for images
+  const images = document.querySelectorAll("img")
+  images.forEach((img) => {
+    if (!img.complete) {
+      img.style.opacity = "0"
+      img.style.transition = "opacity 0.3s ease"
+
+      img.addEventListener("load", () => {
+        img.style.opacity = "1"
+      })
+
+      img.addEventListener("error", () => {
+        img.style.opacity = "1"
+      })
+    }
+  })
 })
 
 function initNewsCarousel() {
@@ -193,3 +214,187 @@ window.addEventListener("resize", () => {
   updateNewsCarousel()
   updateGalleryCarousel()
 })
+
+// Matches tabs functionality
+function initMatchesTabs() {
+  const tabButtons = document.querySelectorAll(".tab-btn")
+  const tabContents = document.querySelectorAll(".tab-content")
+
+  tabButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const targetTab = button.getAttribute("data-tab")
+
+      // Remove active class from all buttons and contents
+      tabButtons.forEach((btn) => btn.classList.remove("active"))
+      tabContents.forEach((content) => content.classList.remove("active"))
+
+      // Add active class to clicked button and corresponding content
+      button.classList.add("active")
+      document.getElementById(targetTab).classList.add("active")
+    })
+  })
+}
+
+// Smooth scrolling functionality
+function initSmoothScrolling() {
+  const scrollIndicator = document.querySelector(".hero-scroll-indicator")
+
+  if (scrollIndicator) {
+    scrollIndicator.addEventListener("click", () => {
+      const firstSection = document.querySelector(".section")
+      if (firstSection) {
+        firstSection.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        })
+      }
+    })
+  }
+}
+
+// Gallery lightbox functionality
+function initGalleryLightbox() {
+  const galleryItems = document.querySelectorAll(".gallery-item")
+
+  galleryItems.forEach((item) => {
+    item.addEventListener("click", (e) => {
+      e.preventDefault()
+      const img = item.querySelector("img")
+      const title = item.querySelector("h4")?.textContent || "Gallery Image"
+
+      if (img) {
+        openLightbox(img.src, title)
+      }
+    })
+  })
+}
+
+// Simple lightbox implementation
+function openLightbox(imageSrc, title) {
+  // Create lightbox overlay
+  const lightbox = document.createElement("div")
+  lightbox.className = "lightbox-overlay"
+  lightbox.innerHTML = `
+    <div class="lightbox-content">
+      <button class="lightbox-close">&times;</button>
+      <img src="${imageSrc}" alt="${title}">
+      <div class="lightbox-title">${title}</div>
+    </div>
+  `
+
+  // Add lightbox styles
+  lightbox.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  `
+
+  const content = lightbox.querySelector(".lightbox-content")
+  content.style.cssText = `
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+    text-align: center;
+  `
+
+  const img = lightbox.querySelector("img")
+  img.style.cssText = `
+    max-width: 100%;
+    max-height: 80vh;
+    object-fit: contain;
+    border-radius: 10px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  `
+
+  const closeBtn = lightbox.querySelector(".lightbox-close")
+  closeBtn.style.cssText = `
+    position: absolute;
+    top: -40px;
+    right: 0;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 2rem;
+    cursor: pointer;
+    z-index: 10000;
+  `
+
+  const titleEl = lightbox.querySelector(".lightbox-title")
+  titleEl.style.cssText = `
+    color: white;
+    margin-top: 1rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+  `
+
+  // Add to document
+  document.body.appendChild(lightbox)
+
+  // Animate in
+  setTimeout(() => {
+    lightbox.style.opacity = "1"
+  }, 10)
+
+  // Close functionality
+  const closeLightbox = () => {
+    lightbox.style.opacity = "0"
+    setTimeout(() => {
+      document.body.removeChild(lightbox)
+    }, 300)
+  }
+
+  closeBtn.addEventListener("click", closeLightbox)
+  lightbox.addEventListener("click", (e) => {
+    if (e.target === lightbox) {
+      closeLightbox()
+    }
+  })
+
+  // ESC key to close
+  const handleEsc = (e) => {
+    if (e.key === "Escape") {
+      closeLightbox()
+      document.removeEventListener("keydown", handleEsc)
+    }
+  }
+  document.addEventListener("keydown", handleEsc)
+}
+
+// Scroll animations with Intersection Observer
+function initScrollAnimations() {
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: "0px 0px -50px 0px",
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = "1"
+        entry.target.style.transform = "translateY(0)"
+      }
+    })
+  }, observerOptions)
+
+  // Observe elements for animation
+  const animatedElements = document.querySelectorAll(".news-card, .match-card, .gallery-item")
+
+  animatedElements.forEach((el, index) => {
+    // Set initial state
+    el.style.opacity = "0"
+    el.style.transform = "translateY(30px)"
+    el.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`
+
+    // Observe element
+    observer.observe(el)
+  })
+}

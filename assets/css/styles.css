@@ -1330,7 +1330,6 @@ input:focus, textarea:focus, select:focus {
   .comment-avatar {
     margin-bottom: 0.5rem;
   }
-<<<<<<< HEAD
 }
 
 .news-slide {
@@ -1366,6 +1365,3 @@ input:focus, textarea:focus, select:focus {
 .carousel-dot:hover {
   background-color: #ffd700;
 }
-=======
-}
->>>>>>> 3f9dcde68acb56b96a6b5a0664e4b76626655a50

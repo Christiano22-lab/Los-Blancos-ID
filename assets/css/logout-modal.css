@@ -1,0 +1,252 @@
+/* Logout Modal Styles */
+.logout-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.logout-modal-overlay.show {
+  opacity: 1;
+}
+
+.logout-modal {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+  transform: scale(0.9) translateY(-20px);
+  transition: all 0.3s ease;
+}
+
+.logout-modal-overlay.show .logout-modal {
+  transform: scale(1) translateY(0);
+}
+
+.logout-modal-header {
+  margin-bottom: 1.5rem;
+}
+
+.logout-modal-header i {
+  font-size: 3rem;
+  color: #e53e3e;
+  margin-bottom: 1rem;
+}
+
+.logout-modal-header h3 {
+  color: #2d3748;
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.logout-modal p {
+  color: #718096;
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+}
+
+.logout-modal-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.btn-logout {
+  background: #e53e3e;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.btn-logout:hover {
+  background: #c53030;
+  transform: translateY(-1px);
+}
+
+.btn-cancel {
+  background: #f7fafc;
+  color: #4a5568;
+  border: 1px solid #e2e8f0;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.btn-cancel:hover {
+  background: #edf2f7;
+  color: #2d3748;
+  transform: translateY(-1px);
+}
+
+/* Goodbye Modal Styles */
+.logout-modal.goodbye {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+}
+
+.goodbye-content {
+  padding: 1rem 0;
+}
+
+.goodbye-icon {
+  font-size: 4rem;
+  color: #ffd700;
+  margin-bottom: 1rem;
+  animation: wave 1s ease-in-out infinite alternate;
+}
+
+@keyframes wave {
+  from {
+    transform: rotate(-10deg);
+  }
+  to {
+    transform: rotate(10deg);
+  }
+}
+
+.goodbye-content h3 {
+  color: white;
+  margin-bottom: 0.5rem;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.goodbye-content p {
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+}
+
+/* Loading dots animation */
+.loading-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.loading-dots span {
+  width: 8px;
+  height: 8px;
+  background: #ffd700;
+  border-radius: 50%;
+  animation: bounce 1.4s ease-in-out infinite both;
+}
+
+.loading-dots span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+.loading-dots span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes bounce {
+  0%,
+  80%,
+  100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+
+/* Success Toast */
+.logout-success-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #48bb78;
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 10000;
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+  .logout-modal {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+
+  .logout-modal-buttons {
+    flex-direction: column;
+  }
+
+  .logout-success-toast {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    width: auto;
+  }
+
+  .logout-modal-header i {
+    font-size: 2.5rem;
+  }
+
+  .goodbye-icon {
+    font-size: 3rem;
+  }
+}
+
+/* Dark theme support */
+.dark-theme .logout-modal {
+  background: #2d3748;
+  color: white;
+}
+
+.dark-theme .logout-modal-header h3 {
+  color: white;
+}
+
+.dark-theme .logout-modal p {
+  color: #a0aec0;
+}
+
+.dark-theme .btn-cancel {
+  background: #4a5568;
+  color: #e2e8f0;
+  border-color: #718096;
+}
+
+.dark-theme .btn-cancel:hover {
+  background: #2d3748;
+  color: white;
+}
