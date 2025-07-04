@@ -320,9 +320,10 @@ include 'includes/header.php';
                            <i class="fas fa-info-circle"></i>
                            <h3>Ingin Menambah Komunitas?</h3>
                            <p>Hubungi admin untuk menambahkan komunitas Madridista Anda!</p>
-                           <a href="mailto:admin@losblancosid.com" class="btn btn-primary">
-                               <i class="fas fa-envelope"></i> Hubungi Admin
-                           </a>
+                           <a href="https://wa.me/6285817007245" target="_blank" class="btn btn-primary">
+                            <i class="fab fa-whatsapp"></i> Hubungi Admin
+                            </a>
+
                        </div>
                    </div>
                </div>

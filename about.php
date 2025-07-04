@@ -49,9 +49,9 @@ require_once 'includes/header.php';
             <div class="story-content">
                 <h2 class="section-title">Our Story</h2>
                 <p class="story-text">
-                    Los Blancos ID didirikan pada tahun 2018 oleh sekelompok penggemar fanatik Real Madrid 
-                    di Indonesia. Berawal dari diskusi kecil di media sosial, kami berkembang menjadi 
-                    komunitas terbesar penggemar Real Madrid di Indonesia.
+                    Los Blancos ID didirikan pada tahun 2025 oleh seorang penggemar fanatik Real Madrid 
+                    di Indonesia. 
+                    Berawal dari Tugas Project Akhir Mata Kuliah Pemrogaman berbasis Web, Los Blancos ID siap berkembang menjadi komunitas terbesar penggemar Real Madrid di Indonesia.
                 </p>
                 <p class="story-text">
                     Dengan semangat "Hala Madrid", kami tidak hanya mendukung tim kesayangan, 
@@ -60,15 +60,15 @@ require_once 'includes/header.php';
                 <div class="story-highlights">
                     <div class="highlight-item">
                         <i class="fas fa-trophy"></i>
-                        <span>15 UCL Titles Celebrated Together</span>
+                        <span>Satu-satunya Klub 15 UCL</span>
                     </div>
                     <div class="highlight-item">
                         <i class="fas fa-users"></i>
-                        <span>Active in 50+ Cities</span>
+                        <span>Merajut Relasi</span>
                     </div>
                     <div class="highlight-item">
                         <i class="fas fa-heart"></i>
-                        <span>United by Passion</span>
+                        <span>Dipersatukan Oleh Hobi</span>
                     </div>
                 </div>
             </div>
@@ -119,57 +119,23 @@ require_once 'includes/header.php';
         <div class="team-grid">
             <div class="team-card">
                 <div class="team-avatar">
-                    <img src="/placeholder.svg?height=120&width=120" alt="Founder">
-                    <div class="avatar-overlay">
-                        <i class="fas fa-crown"></i>
-                    </div>
+                    <img src="assets/images/tiano.jpg" alt="Ahmad Rizki">
                 </div>
-                <h4 class="team-name">Ahmad Rizki</h4>
+                <h4 class="team-name">Christiano Teddy Anta</h4>
                 <p class="team-role">Founder & President</p>
-                <p class="team-bio">Madridista sejak 2002, memimpin komunitas dengan visi menyatukan seluruh penggemar Real Madrid di Indonesia.</p>
+                <p class="team-bio">
+                    Madridista sejak Lahir, punya keinginan untuk menyatukan seluruh penggemar Real Madrid di Indonesia.
+                </p>
                 <div class="team-social">
                     <a href="#"><i class="fab fa-twitter"></i></a>
                     <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-linkedin"></i></a>
-                </div>
-            </div>
-            
-            <div class="team-card">
-                <div class="team-avatar">
-                    <img src="/placeholder.svg?height=120&width=120" alt="Vice President">
-                    <div class="avatar-overlay">
-                        <i class="fas fa-star"></i>
-                    </div>
-                </div>
-                <h4 class="team-name">Sari Dewi</h4>
-                <p class="team-role">Vice President</p>
-                <p class="team-bio">Mengatur strategi komunitas dan memastikan setiap member mendapat pengalaman terbaik sebagai Madridista.</p>
-                <div class="team-social">
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-linkedin"></i></a>
-                </div>
-            </div>
-            
-            <div class="team-card">
-                <div class="team-avatar">
-                    <img src="/placeholder.svg?height=120&width=120" alt="Community Manager">
-                    <div class="avatar-overlay">
-                        <i class="fas fa-users"></i>
-                    </div>
-                </div>
-                <h4 class="team-name">Budi Santoso</h4>
-                <p class="team-role">Community Manager</p>
-                <p class="team-bio">Mengelola aktivitas harian komunitas dan memastikan setiap diskusi berjalan dengan positif dan konstruktif.</p>
-                <div class="team-social">
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
                 </div>
             </div>
         </div>
     </div>
 </section>
+
 
 <section class="achievements">
     <div class="container">
