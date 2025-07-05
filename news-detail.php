@@ -170,10 +170,8 @@ include 'includes/header.php';
                                 <?php foreach ($comments as $comment): ?>
                                     <?php
                                     $profile_image_name = $comment['profile_image'] ?? '';
-                                    $profile_image_path = 'assets/images/profiles/' . $profile_image_name;
-
-                                    $profile_image_src = (!empty($profile_image_name) && file_exists($profile_image_path))
-                                        ? $profile_image_path
+                                    $profile_image_src = (!empty($profile_image_name) && file_exists($profile_image_name))
+                                        ? $profile_image_name
                                         : 'assets/images/user-image.jpg';
                                     ?>
                                     <div class="comment">
