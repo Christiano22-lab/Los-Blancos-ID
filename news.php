@@ -54,6 +54,85 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && is_logged_in()) {
         header("Location: news.php");
         exit;
     }
+    
+    // Handle edit news
+    if (isset($_POST['edit_news']) && is_admin()) {
+        $news_id = (int)$_POST['news_id'];
+        $title = sanitize_input($_POST['title']);
+        $excerpt = sanitize_input($_POST['excerpt']);
+        $content = sanitize_input($_POST['content']);
+        $category = sanitize_input($_POST['category']);
+        
+        // Handle image upload
+        $image_update = '';
+        if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
+            $upload_dir = 'assets/images/news/';
+            if (!file_exists($upload_dir)) {
+                mkdir($upload_dir, 0777, true);
+            }
+            
+            $file_extension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+            $filename = 'news_' . time() . '.' . $file_extension;
+            $upload_path = $upload_dir . $filename;
+            
+            if (move_uploaded_file($_FILES['image']['tmp_name'], $upload_path)) {
+                $image_update = ", image = '" . db_escape($filename) . "'";
+            }
+        }
+        
+        // Update news in database
+        $title_escaped = db_escape($title);
+        $excerpt_escaped = db_escape($excerpt);
+        $content_escaped = db_escape($content);
+        $category_escaped = db_escape($category);
+        
+        $query = "UPDATE news SET 
+                  title = '$title_escaped', 
+                  excerpt = '$excerpt_escaped', 
+                  content = '$content_escaped', 
+                  category = '$category_escaped'
+                  $image_update
+                  WHERE id = $news_id";
+        
+        if (db_query($query)) {
+            $_SESSION['message'] = "News article updated successfully!";
+            $_SESSION['message_type'] = "success";
+        } else {
+            $_SESSION['message'] = "Error updating news article.";
+            $_SESSION['message_type'] = "error";
+        }
+        
+        header("Location: news.php");
+        exit;
+    }
+    
+    // Handle delete news
+    if (isset($_POST['delete_news']) && is_admin()) {
+        $news_id = (int)$_POST['news_id'];
+        
+        // Get image filename to delete file
+        $get_image_query = "SELECT image FROM news WHERE id = $news_id";
+        $image_result = db_query($get_image_query);
+        if ($image_data = db_fetch_array($image_result)) {
+            if (!empty($image_data['image']) && file_exists('assets/images/news/' . $image_data['image'])) {
+                unlink('assets/images/news/' . $image_data['image']);
+            }
+        }
+        
+        // Delete news from database
+        $query = "DELETE FROM news WHERE id = $news_id";
+        
+        if (db_query($query)) {
+            $_SESSION['message'] = "News article deleted successfully!";
+            $_SESSION['message_type'] = "success";
+        } else {
+            $_SESSION['message'] = "Error deleting news article.";
+            $_SESSION['message_type'] = "error";
+        }
+        
+        header("Location: news.php");
+        exit;
+    }
 }
 
 // Get filter parameters
@@ -75,6 +154,13 @@ if (!empty($category)) {
 
 // Get news categories for filter
 $categories = ['Match Review', 'Transfers', 'Champions League', 'Team News', 'Analysis', 'Interviews'];
+
+// Get specific news for editing if edit parameter is set
+$edit_news = null;
+if (isset($_GET['edit']) && is_admin()) {
+    $edit_id = (int)$_GET['edit'];
+    $edit_news = get_news_by_id($edit_id);
+}
 
 include 'includes/header.php';
 ?>
@@ -145,6 +231,71 @@ include 'includes/header.php';
         </div>
     <?php endif; ?>
 
+    <!-- Edit News Form for Admin -->
+    <?php if ($edit_news && is_admin()): ?>
+        <div id="editNewsForm" class="add-news-form" style="display: block;">
+            <div class="form-container">
+                <h3><i class="fas fa-edit"></i> Edit Article</h3>
+                <form method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="news_id" value="<?php echo $edit_news['id']; ?>">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit_title">Article Title *</label>
+                            <input type="text" name="title" id="edit_title" required maxlength="255" 
+                                   value="<?php echo htmlspecialchars($edit_news['title']); ?>">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit_category">Category *</label>
+                            <select name="category" id="edit_category" required>
+                                <option value="">Select Category</option>
+                                <?php foreach ($categories as $cat): ?>
+                                    <option value="<?php echo htmlspecialchars($cat); ?>" 
+                                            <?php echo $edit_news['category'] === $cat ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($cat); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit_excerpt">Excerpt *</label>
+                        <textarea name="excerpt" id="edit_excerpt" rows="3" required 
+                                  placeholder="Brief summary of the article..."><?php echo htmlspecialchars($edit_news['excerpt']); ?></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit_content">Content *</label>
+                        <textarea name="content" id="edit_content" rows="8" required 
+                                  placeholder="Full article content..."><?php echo htmlspecialchars($edit_news['content']); ?></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit_image">Featured Image</label>
+                        <?php if (!empty($edit_news['image'])): ?>
+                            <div class="current-image">
+                                <img src="assets/images/news/<?php echo htmlspecialchars($edit_news['image']); ?>" 
+                                     alt="Current image" style="max-width: 200px; height: auto; margin-bottom: 10px;">
+                                <p><small>Current image</small></p>
+                            </div>
+                        <?php endif; ?>
+                        <input type="file" name="image" id="edit_image" accept="image/*">
+                        <small>Leave empty to keep current image. Recommended size: 800x400px</small>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" name="edit_news" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Update Article
+                        </button>
+                        <a href="news.php" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    <?php endif; ?>
+
     <!-- Search and Filter -->
     <div class="news-filters">
         <form method="GET" class="search-form">
@@ -180,8 +331,10 @@ include 'includes/header.php';
                         if (!empty($article['image'])) {
                             // Check if it's a full path or just filename
                             if (strpos($article['image'], 'assets/') === 0) {
+                                // Already full path
                                 $image_src = $article['image'];
                             } else {
+                                // Just filename, add path
                                 $image_src = 'assets/images/news/' . $article['image'];
                             }
                             
@@ -191,9 +344,9 @@ include 'includes/header.php';
                             }
                         }
                         ?>
-                        <img src="<?php echo !empty($article['image']) ? 'assets/images/news/' . htmlspecialchars($article['image']) : 'assets/images/default-news.jpg'; ?>"
+                        <img src="<?php echo get_news_image_path($article['image']); ?>"
                         alt="<?php echo htmlspecialchars($article['title']); ?>"
-                        onerror="this.src='assets/images/default-news.jpg'"
+                        onerror="this.src='/placeholder.svg?height=240&width=380'"
                         loading="lazy">
                         <div class="news-overlay">
                             <span class="news-category"><?php echo htmlspecialchars($article['category']); ?></span>
@@ -219,9 +372,26 @@ include 'includes/header.php';
                                 <span><?php echo format_date($article['date']); ?></span>
                             </div>
                         </div>
-                        <a href="news-detail.php?id=<?php echo $article['id']; ?>" class="read-more-btn">
-                            Read Full Article <i class="fas fa-chevron-right"></i>
-                        </a>
+                        <div class="news-actions">
+                            <a href="news-detail.php?id=<?php echo $article['id']; ?>" class="read-more-btn">
+                                Read Full Article <i class="fas fa-chevron-right"></i>
+                            </a>
+                            
+                            <!-- Admin Actions -->
+                            <?php if (is_admin()): ?>
+                                <div class="admin-actions">
+                                    <a href="news.php?edit=<?php echo $article['id']; ?>" class="btn-admin-edit" title="Edit Article">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this article?');">
+                                        <input type="hidden" name="news_id" value="<?php echo $article['id']; ?>">
+                                        <button type="submit" name="delete_news" class="btn-admin-delete" title="Delete Article">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </article>
             <?php endforeach; ?>
@@ -268,6 +438,60 @@ include 'includes/header.php';
 </div>
 
 <link rel="stylesheet" href="assets/css/news.css">
+
+<style>
+/* Admin Actions Styles */
+.news-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.admin-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-admin-edit,
+.btn-admin-delete {
+    padding: 6px 8px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-admin-edit {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-admin-edit:hover {
+    background-color: #0056b3;
+    color: white;
+    text-decoration: none;
+}
+
+.btn-admin-delete {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-admin-delete:hover {
+    background-color: #c82333;
+}
+
+.current-image img {
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

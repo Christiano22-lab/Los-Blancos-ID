@@ -52,8 +52,13 @@ body {
   position: relative;
   z-index: 2;
   max-width: 900px;
-  padding: 2rem;
+  padding: 3rem;
   animation: heroFadeIn 1.2s ease-out;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin-top: -5vh;
 }
 
 .hero-badge {
@@ -692,75 +697,68 @@ body {
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
-* Login Prompt Section */
-  .login-prompt-section {
-    margin-top: 4rem;
-    padding: 3rem 0;
-  }
-  
-  .login-prompt {
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    border-radius: 20px;
-    padding: 3rem;
-    text-align: center;
-    border: 2px dashed #cbd5e0;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .login-prompt::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle at 50% 50%, rgba(26, 54, 93, 0.05) 0%, transparent 70%);
-    z-index: 1;
-  }
-  
-  .prompt-icon {
-    font-size: 4rem;
-    color: #1a365d;
-    margin-bottom: 1.5rem;
-    position: relative;
-    z-index: 2;
-  }
-  
-  .prompt-content {
-    position: relative;
-    z-index: 2;
-  }
-  
-  .prompt-content h3 {
-    font-size: 2rem;
-    color: #1a365d;
-    margin-bottom: 1rem;
-    font-weight: 700;
-  }
-  
-  .prompt-content p {
-    font-size: 1.1rem;
-    color: #4a5568;
-    margin-bottom: 2rem;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-    line-height: 1.7;
-  }
-  
-  .prompt-actions {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-  
+/* Login Prompt Section */
+.login-prompt-section {
+  margin-top: 4rem;
+  padding: 3rem 0;
+}
 
-.btn-cta-primary:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 15px 40px rgba(255, 215, 0, 0.5);
+.login-prompt {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-radius: 20px;
+  padding: 3rem;
+  text-align: center;
+  border: 2px dashed #cbd5e0;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-prompt::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(26, 54, 93, 0.05) 0%, transparent 70%);
+  z-index: 1;
+}
+
+.prompt-icon {
+  font-size: 4rem;
   color: #1a365d;
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+.prompt-content {
+  position: relative;
+  z-index: 2;
+}
+
+.prompt-content h3 {
+  font-size: 2rem;
+  color: #1a365d;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.prompt-content p {
+  font-size: 1.1rem;
+  color: #4a5568;
+  margin-bottom: 2rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.7;
+}
+
+.prompt-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 /* Buttons */
@@ -983,67 +981,3 @@ body {
     font-size: 1.1rem;
   }
 }
-
-/* Login Prompt Section */
-  .login-prompt-section {
-    margin-top: 4rem;
-    padding: 3rem 0;
-  }
-  
-  .login-prompt {
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    border-radius: 20px;
-    padding: 3rem;
-    text-align: center;
-    border: 2px dashed #cbd5e0;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .login-prompt::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle at 50% 50%, rgba(26, 54, 93, 0.05) 0%, transparent 70%);
-    z-index: 1;
-  }
-  
-  .prompt-icon {
-    font-size: 4rem;
-    color: #1a365d;
-    margin-bottom: 1.5rem;
-    position: relative;
-    z-index: 2;
-  }
-  
-  .prompt-content {
-    position: relative;
-    z-index: 2;
-  }
-  
-  .prompt-content h3 {
-    font-size: 2rem;
-    color: #1a365d;
-    margin-bottom: 1rem;
-    font-weight: 700;
-  }
-  
-  .prompt-content p {
-    font-size: 1.1rem;
-    color: #4a5568;
-    margin-bottom: 2rem;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-    line-height: 1.7;
-  }
-  
-  .prompt-actions {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    flex-wrap: wrap;
-  }

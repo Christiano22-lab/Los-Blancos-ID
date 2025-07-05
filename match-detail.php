@@ -71,6 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && is_admin()) {
         $jersey_number = (int)$_POST['jersey_number'];
         $position = sanitize_input($_POST['position']);
         $team_type = sanitize_input($_POST['team_type']); // 'home' or 'away'
+        $is_starter = isset($_POST['is_starter']) ? 1 : 0;
         
         $player_name_escaped = db_escape($player_name);
         $position_escaped = db_escape($position);
@@ -82,14 +83,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && is_admin()) {
             $query = "UPDATE match_lineups SET 
                       player_name = '$player_name_escaped',
                       jersey_number = $jersey_number,
-                      position = '$position_escaped'
+                      position = '$position_escaped',
+                      is_starter = $is_starter
                       WHERE id = $player_id";
             
             $success_msg = "Player updated successfully!";
         } else {
             // Add new player
-            $query = "INSERT INTO match_lineups (match_id, player_name, jersey_number, position, team_type) 
-                      VALUES ($match_id, '$player_name_escaped', $jersey_number, '$position_escaped', '$team_type_escaped')";
+            $query = "INSERT INTO match_lineups (match_id, player_name, jersey_number, position, team_type, is_starter) 
+                      VALUES ($match_id, '$player_name_escaped', $jersey_number, '$position_escaped', '$team_type_escaped', $is_starter)";
             
             $success_msg = "Player added successfully!";
         }
@@ -156,14 +158,22 @@ if (!$match_stats) {
     ];
 }
 
-// Get lineups
-$home_lineup_query = "SELECT * FROM match_lineups WHERE match_id = $match_id AND team_type = 'home' ORDER BY jersey_number";
-$home_lineup_result = db_query($home_lineup_query);
-$home_starters = db_fetch_all($home_lineup_result);
+// Get lineups - separate starters and substitutes
+$home_starters_query = "SELECT * FROM match_lineups WHERE match_id = $match_id AND team_type = 'home' AND is_starter = 1 ORDER BY jersey_number LIMIT 11";
+$home_starters_result = db_query($home_starters_query);
+$home_starters = db_fetch_all($home_starters_result);
 
-$away_lineup_query = "SELECT * FROM match_lineups WHERE match_id = $match_id AND team_type = 'away' ORDER BY jersey_number";
-$away_lineup_result = db_query($away_lineup_query);
-$away_starters = db_fetch_all($away_lineup_result);
+$home_subs_query = "SELECT * FROM match_lineups WHERE match_id = $match_id AND team_type = 'home' AND is_starter = 0 ORDER BY jersey_number";
+$home_subs_result = db_query($home_subs_query);
+$home_subs = db_fetch_all($home_subs_result);
+
+$away_starters_query = "SELECT * FROM match_lineups WHERE match_id = $match_id AND team_type = 'away' AND is_starter = 1 ORDER BY jersey_number LIMIT 11";
+$away_starters_result = db_query($away_starters_query);
+$away_starters = db_fetch_all($away_starters_result);
+
+$away_subs_query = "SELECT * FROM match_lineups WHERE match_id = $match_id AND team_type = 'away' AND is_starter = 0 ORDER BY jersey_number";
+$away_subs_result = db_query($away_subs_query);
+$away_subs = db_fetch_all($away_subs_result);
 
 // Get player for editing if edit_player_id is provided
 $edit_player = null;
@@ -419,6 +429,16 @@ include 'includes/header.php';
                             <?php endif; ?>
                         </div>
                         
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" name="is_starter" value="1" <?php echo ($edit_player && $edit_player['is_starter']) ? 'checked' : 'checked'; ?>>
+                                    Starting XI Player
+                                </label>
+                                <small>Uncheck if this is a substitute player</small>
+                            </div>
+                        </div>
+                        
                         <div class="form-actions">
                             <button type="submit" name="<?php echo $edit_player ? 'edit_player' : 'add_player'; ?>" class="btn btn-primary">
                                 <i class="fas fa-save"></i> <?php echo $edit_player ? 'Update Player' : 'Add Player'; ?>
@@ -514,7 +534,6 @@ include 'includes/header.php';
                     <div class="team-lineup">
                         <div class="team-header">
                         <img src="assets/images/teams/<?php echo $match['home_team_logo']; ?>" alt="<?php echo $match['home_team']; ?>">
-
                             <h3><?php echo $match['home_team']; ?></h3>
                         </div>
                         
@@ -543,7 +562,7 @@ include 'includes/header.php';
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <div class="no-players">
-                                    <p>No players added yet</p>
+                                    <p>No starting players added yet</p>
                                     <?php if (is_admin()): ?>
                                         <button class="btn btn-sm btn-primary" onclick="togglePlayerForm()">
                                             <i class="fas fa-plus"></i> Add Players
@@ -551,7 +570,39 @@ include 'includes/header.php';
                                     <?php endif; ?>
                                 </div>
                             <?php endif; ?>
+                            
+                            <?php if (count($home_starters) < 11 && is_admin()): ?>
+                                <div class="lineup-info">
+                                    <small><i class="fas fa-info-circle"></i> Need <?php echo 11 - count($home_starters); ?> more starting players</small>
+                                </div>
+                            <?php endif; ?>
                         </div>
+                        
+                        <?php if (!empty($home_subs)): ?>
+                            <div class="players-list">
+                                <h4>Substitutes</h4>
+                                <?php foreach ($home_subs as $player): ?>
+                                    <div class="player-item substitute">
+                                        <?php if (is_admin()): ?>
+                                            <div class="player-actions">
+                                                <a href="match-detail.php?id=<?php echo $match_id; ?>&edit_player=<?php echo $player['id']; ?>" class="btn-edit-small" title="Edit Player">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this player?');">
+                                                    <input type="hidden" name="player_id" value="<?php echo $player['id']; ?>">
+                                                    <button type="submit" name="delete_player" class="btn-delete-small" title="Delete Player">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        <?php endif; ?>
+                                        <span class="jersey-number"><?php echo $player['jersey_number']; ?></span>
+                                        <span class="player-name"><?php echo htmlspecialchars($player['player_name']); ?></span>
+                                        <span class="player-position"><?php echo $player['position']; ?></span>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
                     </div>
                     
                     <div class="team-lineup">
@@ -585,7 +636,7 @@ include 'includes/header.php';
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <div class="no-players">
-                                    <p>No players added yet</p>
+                                    <p>No starting players added yet</p>
                                     <?php if (is_admin()): ?>
                                         <button class="btn btn-sm btn-primary" onclick="togglePlayerForm()">
                                             <i class="fas fa-plus"></i> Add Players
@@ -593,7 +644,39 @@ include 'includes/header.php';
                                     <?php endif; ?>
                                 </div>
                             <?php endif; ?>
+                            
+                            <?php if (count($away_starters) < 11 && is_admin()): ?>
+                                <div class="lineup-info">
+                                    <small><i class="fas fa-info-circle"></i> Need <?php echo 11 - count($away_starters); ?> more starting players</small>
+                                </div>
+                            <?php endif; ?>
                         </div>
+                        
+                        <?php if (!empty($away_subs)): ?>
+                            <div class="players-list">
+                                <h4>Substitutes</h4>
+                                <?php foreach ($away_subs as $player): ?>
+                                    <div class="player-item substitute">
+                                        <?php if (is_admin()): ?>
+                                            <div class="player-actions">
+                                                <a href="match-detail.php?id=<?php echo $match_id; ?>&edit_player=<?php echo $player['id']; ?>" class="btn-edit-small" title="Edit Player">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this player?');">
+                                                    <input type="hidden" name="player_id" value="<?php echo $player['id']; ?>">
+                                                    <button type="submit" name="delete_player" class="btn-delete-small" title="Delete Player">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        <?php endif; ?>
+                                        <span class="jersey-number"><?php echo $player['jersey_number']; ?></span>
+                                        <span class="player-name"><?php echo htmlspecialchars($player['player_name']); ?></span>
+                                        <span class="player-position"><?php echo $player['position']; ?></span>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
                 
@@ -620,7 +703,6 @@ include 'includes/header.php';
                     <div class="team-logos">
                         <img src="assets/images/teams/<?php echo $match['home_team_logo']; ?>" alt="<?php echo $match['home_team']; ?>">
                         <img src="assets/images/teams/<?php echo $match['away_team_logo']; ?>" alt="<?php echo $match['away_team']; ?>">
-
                     </div>
                     
                     <div class="stats-grid">

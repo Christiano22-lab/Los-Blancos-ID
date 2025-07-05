@@ -28,19 +28,31 @@ if (!$article) {
 $page_title = $article['title'];
 $page_description = $article['excerpt'] ?? substr(strip_tags($article['content']), 0, 160);
 
-$article_image_path = !empty($article['image']) && file_exists('assets/images/news/' . $article['image'])
-    ? 'assets/images/news/' . htmlspecialchars($article['image'])
-    : 'assets/images/default-news.jpg';
-
+$article_image_path = get_news_image_path($article['image']);
 
 // Create comments table if not exists
 create_comments_table();
 
+// Create news views table if not exists
+create_news_views_table();
+
+// Handle view tracking - increment views setiap kali artikel dibuka
+if (is_logged_in()) {
+    $user_id = $_SESSION['user_id'];
+    
+    // Langsung record view dan increment tanpa cek hari ini
+    record_news_view($id, $user_id);
+    increment_news_views($id);
+} else {
+    // Untuk user yang tidak login, tetap increment views
+    increment_news_views($id);
+}
+
 // Get related articles
 $related_articles = get_related_news($id, 3);
 
-// Get comments
-$comments = get_news_comments($id);
+// Get comments with username instead of full name
+$comments = get_news_comments_with_username($id);
 
 // Handle comment submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && is_logged_in()) {
@@ -60,8 +72,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && is_logged_in()) {
     }
 }
 
-// Increment view count
-increment_news_views($id);
+// Function to get comments with username
+function get_news_comments_with_username($news_id) {
+    $news_id = (int)$news_id;
+    
+    $query = "SELECT c.*, 
+                     COALESCE(u.username, u.name) as display_name,
+                     u.profile_image 
+              FROM comments c 
+              LEFT JOIN users u ON c.user_id = u.id 
+              WHERE c.news_id = $news_id 
+              ORDER BY c.created_at DESC";
+    
+    $result = db_query($query);
+    return db_fetch_all($result);
+}
 
 include 'includes/header.php';
 ?>
@@ -177,14 +202,14 @@ include 'includes/header.php';
                                     <div class="comment">
                                         <div class="comment-avatar">
                                             <img src="<?php echo $profile_image_src; ?>"
-                                                alt="<?php echo htmlspecialchars($comment['name'] ?? 'User'); ?>"
+                                                alt="<?php echo htmlspecialchars($comment['display_name'] ?? 'User'); ?>"
                                                 loading="lazy"
                                                 onerror="this.src='assets/images/user-image.jpg'">
                                         </div>
                                         <div class="comment-content">
                                             <div class="comment-header">
                                                 <span class="comment-author">
-                                                    <?php echo htmlspecialchars($comment['name'] ?? 'Anonymous'); ?>
+                                                    <?php echo htmlspecialchars($comment['display_name'] ?? 'Anonymous'); ?>
                                                 </span>
                                                 <span class="comment-date">
                                                     <?php echo get_time_ago($comment['created_at']); ?>
@@ -211,7 +236,7 @@ include 'includes/header.php';
                                     <div class="related-article">
                                         <a href="news-detail.php?id=<?php echo $related['id']; ?>">
                                             <div class="related-image">
-                                                <img src="<?php echo 'assets/images/news/' . ($related['image'] ?? 'placeholder.svg'); ?>"
+                                                <img src="<?php echo get_news_image_path($related['image']); ?>"
                                                 alt="<?php echo htmlspecialchars($related['title']); ?>"
                                                 onerror="this.src='assets/images/placeholder.svg'"
                                                 loading="lazy">
@@ -225,6 +250,23 @@ include 'includes/header.php';
                                         </a>
                                     </div>
                                 <?php endforeach; ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- Viewer Statistics (Admin Only) -->
+                    <?php if (is_admin()): ?>
+                        <div class="sidebar-section">
+                            <h3><i class="fas fa-chart-bar"></i> View Statistics</h3>
+                            <div class="stats-box">
+                                <div class="stat-item">
+                                    <span class="stat-label">Total Views:</span>
+                                    <span class="stat-value"><?php echo number_format($article['views'] ?? 0); ?></span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Today's Views:</span>
+                                    <span class="stat-value"><?php echo get_today_views_count($id); ?></span>
+                                </div>
                             </div>
                         </div>
                     <?php endif; ?>

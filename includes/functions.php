@@ -459,7 +459,7 @@ function create_dummy_news_data() {
                 'content' => 'In a stunning display of skill and determination, Jude Bellingham scored three goals to lead Real Madrid to a convincing victory over Barcelona. The English midfielder was unstoppable throughout the match.',
                 'category' => 'Match Review',
                 'author' => 'Carlos Mendoza',
-                'image' => 'assets/images/news/bellingham-clasico.jpg',
+                'image' => 'bellingham-clasico.jpg',
                 'views' => 1250,
                 'date' => date('Y-m-d', strtotime('-2 days'))
             ],
@@ -469,7 +469,7 @@ function create_dummy_news_data() {
                 'content' => 'Real Madrid has once again shown their Champions League pedigree with a dramatic victory that sends them through to the semi-finals. A last-minute goal sealed the deal.',
                 'category' => 'Champions League',
                 'author' => 'Maria Rodriguez',
-                'image' => 'assets/images/news/champions-league.jpg',
+                'image' => 'champions-league.jpg',
                 'views' => 980,
                 'date' => date('Y-m-d', strtotime('-5 days'))
             ],
@@ -479,7 +479,7 @@ function create_dummy_news_data() {
                 'content' => 'According to multiple sources close to the club, Real Madrid is preparing a substantial offer for one of the Premier League\'s standout midfielders.',
                 'category' => 'Transfers',
                 'author' => 'James Wilson',
-                'image' => 'assets/images/news/transfer-news.jpg',
+                'image' => 'transfer-news.jpg',
                 'views' => 756,
                 'date' => date('Y-m-d', strtotime('-7 days'))
             ],
@@ -489,7 +489,7 @@ function create_dummy_news_data() {
                 'content' => 'In a boost to Real Madrid\'s defensive options, a key defender has returned to full training following a lengthy injury layoff.',
                 'category' => 'Team News',
                 'author' => 'Elena Sanchez',
-                'image' => 'assets/images/news/training-return.jpg',
+                'image' => 'training-return.jpg',
                 'views' => 432,
                 'date' => date('Y-m-d', strtotime('-10 days'))
             ],
@@ -499,7 +499,7 @@ function create_dummy_news_data() {
                 'content' => 'Carlo Ancelotti has implemented a new tactical approach that has seen Real Madrid dominate possession and create more scoring opportunities.',
                 'category' => 'Analysis',
                 'author' => 'Thomas Mueller',
-                'image' => 'assets/images/news/tactical-analysis.jpg',
+                'image' => 'tactical-analysis.jpg',
                 'views' => 623,
                 'date' => date('Y-m-d', strtotime('-12 days'))
             ],
@@ -509,7 +509,7 @@ function create_dummy_news_data() {
                 'content' => 'The renovation of Santiago Bernabéu continues to progress with new technological features being installed.',
                 'category' => 'Stadium News',
                 'author' => 'Miguel Fernandez',
-                'image' => 'assets/images/news/bernabeu-renovation.jpg',
+                'image' => 'bernabeu-renovation.jpg',
                 'views' => 891,
                 'date' => date('Y-m-d', strtotime('-15 days'))
             ]
@@ -611,7 +611,7 @@ function create_dummy_matches_data() {
                 'status' => 'completed'
             ],
             [
-                'competition' => 'Champions League',
+                'competition' => 'La Liga',
                 'home_team' => 'Real Madrid',
                 'away_team' => 'Manchester City',
                 'home_team_logo' => 'assets/images/teams/real-madrid.png',
@@ -1259,10 +1259,148 @@ function create_comments_table() {
     return true;
 }
 
+// ========================================
+// 📊 NEWS VIEWS TRACKING FUNCTIONS
+// ========================================
+
+/**
+ * Membuat tabel news_views untuk tracking view statistics
+ * TANPA unique constraint agar bisa multiple views per user per day
+ */
+function create_news_views_table() {
+    $check_table = db_query("SHOW TABLES LIKE 'news_views'");
+    if (db_num_rows($check_table) == 0) {
+        $create_table_query = "CREATE TABLE news_views (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            news_id INT NOT NULL,
+            user_id INT NOT NULL,
+            ip_address VARCHAR(45),
+            user_agent TEXT,
+            viewed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            date_viewed DATE DEFAULT (CURRENT_DATE),
+            FOREIGN KEY (news_id) REFERENCES news(id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )";
+        
+        if (!db_query($create_table_query)) {
+            error_log("Failed to create news_views table: " . mysqli_error(db_connect()));
+            return false;
+        }
+    } else {
+        // Jika tabel sudah ada, cek apakah masih ada unique constraint dan hapus jika ada
+        $check_constraint = db_query("SHOW INDEX FROM news_views WHERE Key_name = 'unique_user_news_date'");
+        if (db_num_rows($check_constraint) > 0) {
+            // Hapus foreign key constraints terlebih dahulu
+            $foreign_keys = db_query("SELECT CONSTRAINT_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_NAME = 'news_views' AND CONSTRAINT_NAME LIKE '%_ibfk_%'");
+            while ($fk = db_fetch_array($foreign_keys)) {
+                db_query("ALTER TABLE news_views DROP FOREIGN KEY " . $fk['CONSTRAINT_NAME']);
+            }
+            
+            // Hapus unique constraint
+            db_query("ALTER TABLE news_views DROP INDEX unique_user_news_date");
+            
+            // Buat ulang foreign key constraints
+            db_query("ALTER TABLE news_views ADD CONSTRAINT news_views_ibfk_1 FOREIGN KEY (news_id) REFERENCES news(id) ON DELETE CASCADE");
+            db_query("ALTER TABLE news_views ADD CONSTRAINT news_views_ibfk_2 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE");
+        }
+    }
+    
+    return true;
+}
+
+/**
+ * 🔍 Cek apakah user sudah melihat artikel hari ini
+ * Fungsi ini mencegah double counting untuk unique views
+ * 
+ * @param int $news_id ID artikel
+ * @param int $user_id ID user
+ * @return bool true jika sudah pernah view hari ini
+ */
+function has_user_viewed_today($news_id, $user_id) {
+    $news_id = (int)$news_id;
+    $user_id = (int)$user_id;
+    $today = date('Y-m-d');
+    
+    $query = "SELECT COUNT(*) as count FROM news_views 
+              WHERE news_id = $news_id 
+              AND user_id = $user_id 
+              AND date_viewed = '$today'";
+    
+    $result = db_query($query);
+    $data = db_fetch_array($result);
+    
+    return $data['count'] > 0;
+}
+
+/**
+ * 📝 Record view dari user (untuk tracking)
+ * Sekarang akan selalu tersimpan tanpa batasan
+ * 
+ * @param int $news_id ID artikel
+ * @param int $user_id ID user
+ * @return bool success status
+ */
+function record_news_view($news_id, $user_id) {
+    $news_id = (int)$news_id;
+    $user_id = (int)$user_id;
+    $ip_address = db_escape($_SERVER['REMOTE_ADDR'] ?? '');
+    $user_agent = db_escape($_SERVER['HTTP_USER_AGENT'] ?? '');
+    $today = date('Y-m-d');
+    
+    // INSERT biasa tanpa IGNORE, jadi setiap view akan tercatat
+    $query = "INSERT INTO news_views (news_id, user_id, ip_address, user_agent, date_viewed) 
+              VALUES ($news_id, $user_id, '$ip_address', '$user_agent', '$today')";
+    
+    return db_query($query);
+}
+
+/**
+ * 📈 Increment total views (untuk total views)
+ * Setiap kali artikel dibuka = +1 view
+ * 
+ * @param int $news_id ID artikel
+ * @return bool success status
+ */
 function increment_news_views($news_id) {
     $news_id = (int)$news_id;
     $query = "UPDATE news SET views = views + 1 WHERE id = $news_id";
     return db_query($query);
+}
+
+/**
+ * 👥 Hitung jumlah unique viewers (berapa orang berbeda yang pernah baca)
+ * 
+ * @param int $news_id ID artikel
+ * @return int jumlah unique viewers
+ */
+function get_unique_viewers_count($news_id) {
+    $news_id = (int)$news_id;
+    
+    $query = "SELECT COUNT(DISTINCT user_id) as count FROM news_views WHERE news_id = $news_id";
+    $result = db_query($query);
+    $data = db_fetch_array($result);
+    
+    return $data['count'] ?? 0;
+}
+
+/**
+ * 📅 Hitung views hari ini saja
+ * 
+ * @param int $news_id ID artikel
+ * @return int jumlah views hari ini
+ */
+function get_today_views_count($news_id) {
+    $news_id = (int)$news_id;
+    $today = date('Y-m-d');
+    
+    $query = "SELECT COUNT(*) as count FROM news_views 
+              WHERE news_id = $news_id 
+              AND date_viewed = '$today'";
+    
+    $result = db_query($query);
+    $data = db_fetch_array($result);
+    
+    return $data['count'] ?? 0;
 }
 
 function get_news_by_category($category, $limit = null) {
@@ -1411,7 +1549,6 @@ function formatDuration($minutes) {
     return $hours . 'h ' . $remaining_minutes . 'm';
 }
 
-
 /**
  * Get match winner
  */
@@ -1434,6 +1571,25 @@ function getMatchWinner($match) {
  */
 function canEditMatch($user_role) {
     return in_array($user_role, ['admin', 'moderator']);
+}
+
+/**
+ * 🖼️ Helper function untuk mendapatkan path gambar news yang benar
+ * Menangani berbagai format path dan memberikan fallback
+ */
+function get_news_image_path($image_filename) {
+    if (empty($image_filename)) {
+        return '/placeholder.svg?height=240&width=380';
+    }
+    
+    // If it's already a full path, return as is
+    if (strpos($image_filename, 'assets/') === 0) {
+        return file_exists($image_filename) ? $image_filename : '/placeholder.svg?height=240&width=380';
+    }
+    
+    // If it's just a filename, add the news directory path
+    $full_path = 'assets/images/news/' . $image_filename;
+    return file_exists($full_path) ? $full_path : '/placeholder.svg?height=240&width=380';
 }
 
 ?>
