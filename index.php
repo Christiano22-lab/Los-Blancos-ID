@@ -156,7 +156,7 @@ include 'includes/header.php';
                                 <div class="match-teams">
                                     <div class="team">
                                         <div class="team-logo">
-                                            <img src="<?php echo 'assets/images/' . htmlspecialchars($match['home_team_logo']); ?>" 
+                                            <img src="<?php echo get_team_logo_path($match['home_team_logo']); ?>" 
                                                 alt="<?php echo htmlspecialchars($match['home_team']); ?>"
                                                 onerror="this.src='/placeholder.svg?height=60&width=60'">
                                         </div>
@@ -173,7 +173,7 @@ include 'includes/header.php';
                                     </div>
                                     <div class="team">
                                         <div class="team-logo">
-                                            <img src="<?php echo 'assets/images/' . htmlspecialchars($match['away_team_logo']); ?>" 
+                                            <img src="<?php echo get_team_logo_path($match['away_team_logo']); ?>" 
                                                 alt="<?php echo htmlspecialchars($match['away_team']); ?>"
                                                 onerror="this.src='/placeholder.svg?height=60&width=60'">
                                         </div>
@@ -215,7 +215,7 @@ include 'includes/header.php';
                                 <div class="match-teams">
                                     <div class="team">
                                         <div class="team-logo">
-                                            <img src="<?php echo 'assets/images/' . htmlspecialchars($match['home_team_logo']); ?>" 
+                                            <img src="<?php echo get_team_logo_path($match['home_team_logo']); ?>" 
                                                 alt="<?php echo htmlspecialchars($match['home_team']); ?>"
                                                 onerror="this.src='/placeholder.svg?height=60&width=60'">
                                         </div>
@@ -231,7 +231,7 @@ include 'includes/header.php';
                                     </div>
                                     <div class="team">
                                         <div class="team-logo">
-                                            <img src="<?php echo 'assets/images/' . htmlspecialchars($match['away_team_logo']); ?>" 
+                                            <img src="<?php echo get_team_logo_path($match['away_team_logo']); ?>" 
                                                 alt="<?php echo htmlspecialchars($match['away_team']); ?>"
                                                 onerror="this.src='/placeholder.svg?height=60&width=60'">
                                         </div>
