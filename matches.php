@@ -19,9 +19,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && is_admin()) {
         $away_score = !empty($_POST['away_score']) ? (int)$_POST['away_score'] : null;
         $status = sanitize_input($_POST['status']);
         
-        // Handle logo uploads
-        $home_team_logo = isset($_POST['current_home_logo']) ? $_POST['current_home_logo'] : '/placeholder.svg?height=50&width=50';
-        $away_team_logo = isset($_POST['current_away_logo']) ? $_POST['current_away_logo'] : '/placeholder.svg?height=50&width=50';
+        // Handle logo uploads - fix path handling
+        $home_team_logo = isset($_POST['current_home_logo']) ? $_POST['current_home_logo'] : 'logo.png';
+        $away_team_logo = isset($_POST['current_away_logo']) ? $_POST['current_away_logo'] : 'logo.png';
         
         if (isset($_FILES['home_team_logo']) && $_FILES['home_team_logo']['error'] === 0) {
             $upload_dir = 'assets/images/teams/';
@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && is_admin()) {
             $upload_path = $upload_dir . $filename;
             
             if (move_uploaded_file($_FILES['home_team_logo']['tmp_name'], $upload_path)) {
-                $home_team_logo = $upload_path;
+                $home_team_logo = $filename; // Store only filename, not full path
             }
         }
         
@@ -49,43 +49,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && is_admin()) {
             $upload_path = $upload_dir . $filename;
             
             if (move_uploaded_file($_FILES['away_team_logo']['tmp_name'], $upload_path)) {
-                $away_team_logo = $upload_path;
+                $away_team_logo = $filename; // Store only filename, not full path
             }
         }
         
-        // Escape values for database
-        $competition_escaped = db_escape($competition);
-        $home_team_escaped = db_escape($home_team);
-        $away_team_escaped = db_escape($away_team);
-        $home_team_logo_escaped = db_escape($home_team_logo);
-        $away_team_logo_escaped = db_escape($away_team_logo);
-        $match_date_escaped = db_escape($match_date);
-        $match_time_escaped = db_escape($match_time);
-        $stadium_escaped = db_escape($stadium);
-        $status_escaped = db_escape($status);
-        
-        $home_score_value = $home_score !== null ? $home_score : 'NULL';
-        $away_score_value = $away_score !== null ? $away_score : 'NULL';
+        // Prepare data for update/insert
+        $match_data = [
+            'competition' => $competition,
+            'home_team' => $home_team,
+            'away_team' => $away_team,
+            'home_team_logo' => $home_team_logo,
+            'away_team_logo' => $away_team_logo,
+            'match_date' => $match_date,
+            'match_time' => $match_time,
+            'stadium' => $stadium,
+            'home_score' => $home_score,
+            'away_score' => $away_score,
+            'status' => $status
+        ];
         
         if (isset($_POST['edit_match'])) {
             // Update existing match
             $match_id = (int)$_POST['match_id'];
-            $query = "UPDATE matches SET 
-                      competition = '$competition_escaped',
-                      home_team = '$home_team_escaped',
-                      away_team = '$away_team_escaped',
-                      home_team_logo = '$home_team_logo_escaped',
-                      away_team_logo = '$away_team_logo_escaped',
-                      match_date = '$match_date_escaped',
-                      match_time = '$match_time_escaped',
-                      stadium = '$stadium_escaped',
-                      home_score = $home_score_value,
-                      away_score = $away_score_value,
-                      status = '$status_escaped',
-                      updated_at = NOW()
-                      WHERE id = $match_id";
             
-            if (db_query($query)) {
+            if (update_match($match_id, $match_data)) {
                 $_SESSION['message'] = "Match updated successfully!";
                 $_SESSION['message_type'] = "success";
             } else {
@@ -94,10 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && is_admin()) {
             }
         } else {
             // Insert new match
-            $query = "INSERT INTO matches (competition, home_team, away_team, home_team_logo, away_team_logo, match_date, match_time, stadium, home_score, away_score, status, created_at) 
-                      VALUES ('$competition_escaped', '$home_team_escaped', '$away_team_escaped', '$home_team_logo_escaped', '$away_team_logo_escaped', '$match_date_escaped', '$match_time_escaped', '$stadium_escaped', $home_score_value, $away_score_value, '$status_escaped', NOW())";
-            
-            if (db_query($query)) {
+            if (insert_match($match_data)) {
                 $_SESSION['message'] = "Match added successfully!";
                 $_SESSION['message_type'] = "success";
             } else {
@@ -242,7 +226,7 @@ include 'includes/header.php';
                                 <label for="home_team_logo">Home Team Logo</label>
                                 <?php if ($edit_match && $edit_match['home_team_logo']): ?>
                                     <div class="current-logo">
-                                        <img src="<?php echo htmlspecialchars($edit_match['home_team_logo']); ?>" alt="Current Home Logo" style="width: 50px; height: 50px; object-fit: contain; margin-bottom: 0.5rem;">
+                                        <img src="<?php echo get_team_logo_path($edit_match['home_team_logo']); ?>" alt="Current Home Logo" style="width: 50px; height: 50px; object-fit: contain; margin-bottom: 0.5rem;">
                                         <small>Current logo (leave empty to keep)</small>
                                     </div>
                                 <?php endif; ?>
@@ -252,7 +236,7 @@ include 'includes/header.php';
                                 <label for="away_team_logo">Away Team Logo</label>
                                 <?php if ($edit_match && $edit_match['away_team_logo']): ?>
                                     <div class="current-logo">
-                                        <img src="<?php echo htmlspecialchars($edit_match['away_team_logo']); ?>" alt="Current Away Logo" style="width: 50px; height: 50px; object-fit: contain; margin-bottom: 0.5rem;">
+                                        <img src="<?php echo get_team_logo_path($edit_match['away_team_logo']); ?>" alt="Current Away Logo" style="width: 50px; height: 50px; object-fit: contain; margin-bottom: 0.5rem;">
                                         <small>Current logo (leave empty to keep)</small>
                                     </div>
                                 <?php endif; ?>
@@ -369,7 +353,7 @@ include 'includes/header.php';
                                     <div class="match-teams">
                                         <div class="team home-team">
                                             <div class="team-logo">
-                                            <img src="assets/images/teams/<?php echo htmlspecialchars($match['home_team_logo']); ?>" alt="<?php echo htmlspecialchars($match['home_team']); ?>" onerror="this.src='/placeholder.svg?height=60&width=60'">
+                                                <img src="<?php echo get_team_logo_path($match['home_team_logo']); ?>" alt="<?php echo htmlspecialchars($match['home_team']); ?>" onerror="this.src='/placeholder.svg?height=60&width=60'">
                                             </div>
                                             <div class="team-name"><?php echo $match['home_team']; ?></div>
                                         </div>
@@ -383,8 +367,7 @@ include 'includes/header.php';
                                         
                                         <div class="team away-team">
                                             <div class="team-logo">
-                                            <img src="assets/images/teams/<?php echo htmlspecialchars($match['away_team_logo']); ?>" alt="<?php echo htmlspecialchars($match['away_team']); ?>" onerror="this.src='/placeholder.svg?height=60&width=60'">
-
+                                                <img src="<?php echo get_team_logo_path($match['away_team_logo']); ?>" alt="<?php echo htmlspecialchars($match['away_team']); ?>" onerror="this.src='/placeholder.svg?height=60&width=60'">
                                             </div>
                                             <div class="team-name"><?php echo $match['away_team']; ?></div>
                                         </div>
@@ -445,7 +428,7 @@ include 'includes/header.php';
                                     <div class="match-teams">
                                         <div class="team home-team <?php echo ($match['home_score'] > $match['away_score']) ? 'winner' : (($match['home_score'] < $match['away_score']) ? 'loser' : 'draw'); ?>">
                                             <div class="team-logo">
-                                            <img src="assets/images/teams/<?php echo htmlspecialchars($match['home_team_logo']); ?>" alt="<?php echo htmlspecialchars($match['home_team']); ?>" onerror="this.src='/placeholder.svg?height=60&width=60'">
+                                                <img src="<?php echo get_team_logo_path($match['home_team_logo']); ?>" alt="<?php echo htmlspecialchars($match['home_team']); ?>" onerror="this.src='/placeholder.svg?height=60&width=60'">
                                             </div>
                                             <div class="team-name"><?php echo $match['home_team']; ?></div>
                                         </div>
@@ -461,7 +444,7 @@ include 'includes/header.php';
                                         
                                         <div class="team away-team <?php echo ($match['away_score'] > $match['home_score']) ? 'winner' : (($match['away_score'] < $match['home_score']) ? 'loser' : 'draw'); ?>">
                                             <div class="team-logo">
-                                            <img src="assets/images/teams/<?php echo htmlspecialchars($match['away_team_logo']); ?>" alt="<?php echo htmlspecialchars($match['away_team']); ?>" onerror="this.src='/placeholder.svg?height=60&width=60'">
+                                                <img src="<?php echo get_team_logo_path($match['away_team_logo']); ?>" alt="<?php echo htmlspecialchars($match['away_team']); ?>" onerror="this.src='/placeholder.svg?height=60&width=60'">
                                             </div>
                                             <div class="team-name"><?php echo $match['away_team']; ?></div>
                                         </div>

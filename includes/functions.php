@@ -154,6 +154,131 @@ function get_match_by_id($id) {
     return null;
 }
 
+/**
+ * 🔄 Update match data with proper column checking
+ * Fungsi ini akan mengecek kolom yang ada sebelum melakukan update
+ */
+function update_match($match_id, $data) {
+    $match_id = (int)$match_id;
+    
+    // Cek kolom yang tersedia di tabel matches
+    $columns_query = "SHOW COLUMNS FROM matches";
+    $columns_result = db_query($columns_query);
+    $available_columns = [];
+    
+    while ($column = db_fetch_array($columns_result)) {
+        $available_columns[] = $column['Field'];
+    }
+    
+    // Build update query hanya dengan kolom yang tersedia
+    $update_parts = [];
+    $allowed_fields = [
+        'competition', 'home_team', 'away_team', 'home_team_logo', 
+        'away_team_logo', 'match_date', 'match_time', 'stadium', 
+        'venue', 'home_score', 'away_score', 'status'
+    ];
+    
+    foreach ($allowed_fields as $field) {
+        if (isset($data[$field]) && in_array($field, $available_columns)) {
+            if ($data[$field] === null || $data[$field] === '') {
+                $update_parts[] = "$field = NULL";
+            } else {
+                $escaped_value = db_escape($data[$field]);
+                $update_parts[] = "$field = '$escaped_value'";
+            }
+        }
+    }
+    
+    // Tambahkan updated_at jika kolom tersedia
+    if (in_array('updated_at', $available_columns)) {
+        $update_parts[] = "updated_at = NOW()";
+    }
+    
+    if (empty($update_parts)) {
+        return false;
+    }
+    
+    $query = "UPDATE matches SET " . implode(', ', $update_parts) . " WHERE id = $match_id";
+    return db_query($query);
+}
+
+/**
+ * 🆕 Insert new match with proper column checking
+ */
+function insert_match($data) {
+    // Cek kolom yang tersedia di tabel matches
+    $columns_query = "SHOW COLUMNS FROM matches";
+    $columns_result = db_query($columns_query);
+    $available_columns = [];
+    
+    while ($column = db_fetch_array($columns_result)) {
+        $available_columns[] = $column['Field'];
+    }
+    
+    // Build insert query hanya dengan kolom yang tersedia
+    $insert_columns = [];
+    $insert_values = [];
+    $allowed_fields = [
+        'competition', 'home_team', 'away_team', 'home_team_logo', 
+        'away_team_logo', 'match_date', 'match_time', 'stadium', 
+        'venue', 'home_score', 'away_score', 'status'
+    ];
+    
+    foreach ($allowed_fields as $field) {
+        if (isset($data[$field]) && in_array($field, $available_columns)) {
+            $insert_columns[] = $field;
+            if ($data[$field] === null || $data[$field] === '') {
+                $insert_values[] = 'NULL';
+            } else {
+                $escaped_value = db_escape($data[$field]);
+                $insert_values[] = "'$escaped_value'";
+            }
+        }
+    }
+    
+    // Tambahkan created_at dan updated_at jika tersedia
+    if (in_array('created_at', $available_columns)) {
+        $insert_columns[] = 'created_at';
+        $insert_values[] = 'NOW()';
+    }
+    
+    if (in_array('updated_at', $available_columns)) {
+        $insert_columns[] = 'updated_at';
+        $insert_values[] = 'NOW()';
+    }
+    
+    if (empty($insert_columns)) {
+        return false;
+    }
+    
+    $query = "INSERT INTO matches (" . implode(', ', $insert_columns) . ") VALUES (" . implode(', ', $insert_values) . ")";
+    
+    if (db_query($query)) {
+        return db_insert_id();
+    }
+    
+    return false;
+}
+
+/**
+ * 🖼️ Helper function untuk mendapatkan path logo tim yang benar
+ * Menangani berbagai format path dan memberikan fallback
+ */
+function get_team_logo_path($logo_filename) {
+    if (empty($logo_filename)) {
+        return '/placeholder.svg?height=60&width=60';
+    }
+    
+    // If it's already a full path starting with assets/, return as is
+    if (strpos($logo_filename, 'assets/') === 0) {
+        return file_exists($logo_filename) ? $logo_filename : '/placeholder.svg?height=60&width=60';
+    }
+    
+    // If it's just a filename, add the teams directory path
+    $full_path = 'assets/images/teams/' . $logo_filename;
+    return file_exists($full_path) ? $full_path : '/placeholder.svg?height=60&width=60';
+}
+
 function display_message() {
     if (isset($_SESSION['message'])) {
         $message = $_SESSION['message'];
@@ -319,8 +444,8 @@ function add_dummy_data() {
                 'competition' => 'La Liga',
                 'home_team' => 'Real Madrid',
                 'away_team' => 'Sevilla',
-                'home_team_logo' => 'assets/images/real_madrid.png',
-                'away_team_logo' => 'assets/images/sevilla.png',
+                'home_team_logo' => 'logo.png',
+                'away_team_logo' => 'logo.png',
                 'match_date' => date('Y-m-d', strtotime('+5 days')),
                 'match_time' => '20:00',
                 'stadium' => 'Santiago Bernabéu',
@@ -330,8 +455,8 @@ function add_dummy_data() {
                 'competition' => 'Champions League',
                 'home_team' => 'Bayern Munich',
                 'away_team' => 'Real Madrid',
-                'home_team_logo' => 'assets/images/bayern.png',
-                'away_team_logo' => 'assets/images/real_madrid.png',
+                'home_team_logo' => 'logo.png',
+                'away_team_logo' => 'logo.png',
                 'match_date' => date('Y-m-d', strtotime('+10 days')),
                 'match_time' => '21:00',
                 'stadium' => 'Allianz Arena',
@@ -341,8 +466,8 @@ function add_dummy_data() {
                 'competition' => 'La Liga',
                 'home_team' => 'Real Madrid',
                 'away_team' => 'Barcelona',
-                'home_team_logo' => 'assets/images/real_madrid.png',
-                'away_team_logo' => 'assets/images/barcelona.png',
+                'home_team_logo' => 'logo.png',
+                'away_team_logo' => 'logo.png',
                 'match_date' => date('Y-m-d', strtotime('-3 days')),
                 'match_time' => '20:00',
                 'stadium' => 'Santiago Bernabéu',
@@ -354,8 +479,8 @@ function add_dummy_data() {
                 'competition' => 'La Liga',
                 'home_team' => 'Atletico Madrid',
                 'away_team' => 'Real Madrid',
-                'home_team_logo' => 'assets/images/atletico.png',
-                'away_team_logo' => 'assets/images/real_madrid.png',
+                'home_team_logo' => 'logo.png',
+                'away_team_logo' => 'logo.png',
                 'match_date' => date('Y-m-d', strtotime('-10 days')),
                 'match_time' => '19:00',
                 'stadium' => 'Wanda Metropolitano',
@@ -366,22 +491,7 @@ function add_dummy_data() {
         ];
         
         foreach ($matches as $match) {
-            $competition = db_escape($match['competition']);
-            $home_team = db_escape($match['home_team']);
-            $away_team = db_escape($match['away_team']);
-            $home_team_logo = db_escape($match['home_team_logo']);
-            $away_team_logo = db_escape($match['away_team_logo']);
-            $match_date = $match['match_date'];
-            $match_time = db_escape($match['match_time']);
-            $stadium = db_escape($match['stadium']);
-            $status = db_escape($match['status']);
-            
-            $home_score = isset($match['home_score']) ? $match['home_score'] : 'NULL';
-            $away_score = isset($match['away_score']) ? $match['away_score'] : 'NULL';
-            
-            $query = "INSERT INTO matches (competition, home_team, away_team, home_team_logo, away_team_logo, match_date, match_time, stadium, home_score, away_score, status, created_at) 
-                      VALUES ('$competition', '$home_team', '$away_team', '$home_team_logo', '$away_team_logo', '$match_date', '$match_time', '$stadium', $home_score, $away_score, '$status', NOW())";
-            db_query($query);
+            insert_match($match);
         }
     }
     
@@ -566,8 +676,8 @@ function create_dummy_matches_data() {
                 'competition' => 'La Liga',
                 'home_team' => 'Real Madrid',
                 'away_team' => 'Sevilla',
-                'home_team_logo' => 'assets/images/teams/real-madrid.png',
-                'away_team_logo' => 'assets/images/teams/sevilla.png',
+                'home_team_logo' => 'logo.png',
+                'away_team_logo' => 'logo.png',
                 'match_date' => date('Y-m-d', strtotime('+3 days')),
                 'match_time' => '20:00',
                 'stadium' => 'Santiago Bernabéu',
@@ -577,8 +687,8 @@ function create_dummy_matches_data() {
                 'competition' => 'Champions League',
                 'home_team' => 'Bayern Munich',
                 'away_team' => 'Real Madrid',
-                'home_team_logo' => 'assets/images/teams/bayern.png',
-                'away_team_logo' => 'assets/images/teams/real-madrid.png',
+                'home_team_logo' => 'logo.png',
+                'away_team_logo' => 'logo.png',
                 'match_date' => date('Y-m-d', strtotime('+8 days')),
                 'match_time' => '21:00',
                 'stadium' => 'Allianz Arena',
@@ -588,8 +698,8 @@ function create_dummy_matches_data() {
                 'competition' => 'La Liga',
                 'home_team' => 'Real Madrid',
                 'away_team' => 'Valencia',
-                'home_team_logo' => 'assets/images/teams/real-madrid.png',
-                'away_team_logo' => 'assets/images/teams/valencia.png',
+                'home_team_logo' => 'logo.png',
+                'away_team_logo' => 'logo.png',
                 'match_date' => date('Y-m-d', strtotime('+15 days')),
                 'match_time' => '19:00',
                 'stadium' => 'Santiago Bernabéu',
@@ -601,8 +711,8 @@ function create_dummy_matches_data() {
                 'competition' => 'La Liga',
                 'home_team' => 'Real Madrid',
                 'away_team' => 'Barcelona',
-                'home_team_logo' => 'assets/images/teams/real-madrid.png',
-                'away_team_logo' => 'assets/images/teams/barcelona.png',
+                'home_team_logo' => 'logo.png',
+                'away_team_logo' => 'logo.png',
                 'match_date' => date('Y-m-d', strtotime('-3 days')),
                 'match_time' => '20:00',
                 'stadium' => 'Santiago Bernabéu',
@@ -614,8 +724,8 @@ function create_dummy_matches_data() {
                 'competition' => 'La Liga',
                 'home_team' => 'Real Madrid',
                 'away_team' => 'Manchester City',
-                'home_team_logo' => 'assets/images/teams/real-madrid.png',
-                'away_team_logo' => 'assets/images/teams/mancity.png',
+                'home_team_logo' => 'logo.png',
+                'away_team_logo' => 'logo.png',
                 'match_date' => date('Y-m-d', strtotime('-10 days')),
                 'match_time' => '21:00',
                 'stadium' => 'Santiago Bernabéu',
@@ -626,22 +736,7 @@ function create_dummy_matches_data() {
         ];
         
         foreach ($matches as $match) {
-            $competition = db_escape($match['competition']);
-            $home_team = db_escape($match['home_team']);
-            $away_team = db_escape($match['away_team']);
-            $home_team_logo = db_escape($match['home_team_logo']);
-            $away_team_logo = db_escape($match['away_team_logo']);
-            $match_date = $match['match_date'];
-            $match_time = db_escape($match['match_time']);
-            $stadium = db_escape($match['stadium']);
-            $status = db_escape($match['status']);
-            
-            $home_score = isset($match['home_score']) ? $match['home_score'] : 'NULL';
-            $away_score = isset($match['away_score']) ? $match['away_score'] : 'NULL';
-            
-            $query = "INSERT INTO matches (competition, home_team, away_team, home_team_logo, away_team_logo, match_date, match_time, stadium, home_score, away_score, status, created_at) 
-                      VALUES ('$competition', '$home_team', '$away_team', '$home_team_logo', '$away_team_logo', '$match_date', '$match_time', '$stadium', $home_score, $away_score, '$status', NOW())";
-            db_query($query);
+            insert_match($match);
         }
     }
 }

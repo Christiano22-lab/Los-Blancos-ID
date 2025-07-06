@@ -197,9 +197,11 @@ include 'includes/header.php';
         <div class="match-result">
             <div class="team-section home-team">
                 <div class="team-logo">
-                <img src="assets/images/teams/<?php echo $match['home_team_logo']; ?>" alt="<?php echo $match['home_team']; ?>">
+                    <img src="<?php echo get_team_logo_path($match['home_team_logo']); ?>" 
+                         alt="<?php echo htmlspecialchars($match['home_team']); ?>"
+                         onerror="this.src='/placeholder.svg?height=60&width=60'">
                 </div>
-                <h2 class="team-name"><?php echo $match['home_team']; ?></h2>
+                <h2 class="team-name"><?php echo htmlspecialchars($match['home_team']); ?></h2>
             </div>
             
             <div class="score-section">
@@ -220,16 +222,18 @@ include 'includes/header.php';
             
             <div class="team-section away-team">
                 <div class="team-logo">
-                <img src="assets/images/teams/<?php echo $match['away_team_logo']; ?>" alt="<?php echo $match['away_team']; ?>">
+                    <img src="<?php echo get_team_logo_path($match['away_team_logo']); ?>" 
+                         alt="<?php echo htmlspecialchars($match['away_team']); ?>"
+                         onerror="this.src='/placeholder.svg?height=60&width=60'">
                 </div>
-                <h2 class="team-name"><?php echo $match['away_team']; ?></h2>
+                <h2 class="team-name"><?php echo htmlspecialchars($match['away_team']); ?></h2>
             </div>
         </div>
         
         <div class="match-info">
             <div class="info-item">
                 <i class="fas fa-trophy"></i>
-                <span><?php echo $match['competition']; ?></span>
+                <span><?php echo htmlspecialchars($match['competition']); ?></span>
             </div>
             <div class="info-item">
                 <i class="fas fa-calendar"></i>
@@ -237,7 +241,7 @@ include 'includes/header.php';
             </div>
             <div class="info-item">
                 <i class="fas fa-map-marker-alt"></i>
-                <span><?php echo $match['stadium']; ?></span>
+                <span><?php echo htmlspecialchars($match['stadium']); ?></span>
             </div>
         </div>
     </div>
@@ -266,7 +270,7 @@ include 'includes/header.php';
                     <form method="POST">
                         <div class="stats-form-grid">
                             <div class="stat-group">
-                                <h4><?php echo $match['home_team']; ?></h4>
+                                <h4><?php echo htmlspecialchars($match['home_team']); ?></h4>
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label>Shots</label>
@@ -320,7 +324,7 @@ include 'includes/header.php';
                             </div>
 
                             <div class="stat-group">
-                                <h4><?php echo $match['away_team']; ?></h4>
+                                <h4><?php echo htmlspecialchars($match['away_team']); ?></h4>
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label>Shots</label>
@@ -422,8 +426,8 @@ include 'includes/header.php';
                                     <label for="team_type">Team *</label>
                                     <select name="team_type" id="team_type" required>
                                         <option value="">Select Team</option>
-                                        <option value="home"><?php echo $match['home_team']; ?></option>
-                                        <option value="away"><?php echo $match['away_team']; ?></option>
+                                        <option value="home"><?php echo htmlspecialchars($match['home_team']); ?></option>
+                                        <option value="away"><?php echo htmlspecialchars($match['away_team']); ?></option>
                                     </select>
                                 </div>
                             <?php endif; ?>
@@ -479,7 +483,7 @@ include 'includes/header.php';
                             <div class="timeline-time">23'</div>
                             <div class="timeline-event goal">
                                 <i class="fas fa-futbol"></i>
-                                <span>Goal! <?php echo $match['home_team']; ?> 1-0</span>
+                                <span>Goal! <?php echo htmlspecialchars($match['home_team']); ?> 1-0</span>
                             </div>
                         </div>
                         
@@ -487,7 +491,7 @@ include 'includes/header.php';
                             <div class="timeline-time">45'</div>
                             <div class="timeline-event goal">
                                 <i class="fas fa-futbol"></i>
-                                <span>Goal! <?php echo $match['home_team']; ?> 2-0</span>
+                                <span>Goal! <?php echo htmlspecialchars($match['home_team']); ?> 2-0</span>
                             </div>
                         </div>
                         
@@ -495,7 +499,7 @@ include 'includes/header.php';
                             <div class="timeline-time">67'</div>
                             <div class="timeline-event goal">
                                 <i class="fas fa-futbol"></i>
-                                <span>Goal! <?php echo $match['away_team']; ?> 2-1</span>
+                                <span>Goal! <?php echo htmlspecialchars($match['away_team']); ?> 2-1</span>
                             </div>
                         </div>
                         
@@ -503,7 +507,7 @@ include 'includes/header.php';
                             <div class="timeline-time">89'</div>
                             <div class="timeline-event goal">
                                 <i class="fas fa-futbol"></i>
-                                <span>Goal! <?php echo $match['home_team']; ?> <?php echo $match['home_score']; ?>-<?php echo $match['away_score']; ?></span>
+                                <span>Goal! <?php echo htmlspecialchars($match['home_team']); ?> <?php echo $match['home_score']; ?>-<?php echo $match['away_score']; ?></span>
                             </div>
                         </div>
                         
@@ -533,8 +537,10 @@ include 'includes/header.php';
                 <div class="lineup-container">
                     <div class="team-lineup">
                         <div class="team-header">
-                        <img src="assets/images/teams/<?php echo $match['home_team_logo']; ?>" alt="<?php echo $match['home_team']; ?>">
-                            <h3><?php echo $match['home_team']; ?></h3>
+                            <img src="<?php echo get_team_logo_path($match['home_team_logo']); ?>" 
+                                 alt="<?php echo htmlspecialchars($match['home_team']); ?>"
+                                 onerror="this.src='/placeholder.svg?height=40&width=40'">
+                            <h3><?php echo htmlspecialchars($match['home_team']); ?></h3>
                         </div>
                         
                         <div class="players-list">
@@ -557,7 +563,7 @@ include 'includes/header.php';
                                         <?php endif; ?>
                                         <span class="jersey-number"><?php echo $player['jersey_number']; ?></span>
                                         <span class="player-name"><?php echo htmlspecialchars($player['player_name']); ?></span>
-                                        <span class="player-position"><?php echo $player['position']; ?></span>
+                                        <span class="player-position"><?php echo htmlspecialchars($player['position']); ?></span>
                                     </div>
                                 <?php endforeach; ?>
                             <?php else: ?>
@@ -598,7 +604,7 @@ include 'includes/header.php';
                                         <?php endif; ?>
                                         <span class="jersey-number"><?php echo $player['jersey_number']; ?></span>
                                         <span class="player-name"><?php echo htmlspecialchars($player['player_name']); ?></span>
-                                        <span class="player-position"><?php echo $player['position']; ?></span>
+                                        <span class="player-position"><?php echo htmlspecialchars($player['position']); ?></span>
                                     </div>
                                 <?php endforeach; ?>
                             </div>
@@ -607,8 +613,10 @@ include 'includes/header.php';
                     
                     <div class="team-lineup">
                         <div class="team-header">
-                        <img src="assets/images/teams/<?php echo $match['away_team_logo']; ?>" alt="<?php echo $match['away_team']; ?>">
-                            <h3><?php echo $match['away_team']; ?></h3>
+                            <img src="<?php echo get_team_logo_path($match['away_team_logo']); ?>" 
+                                 alt="<?php echo htmlspecialchars($match['away_team']); ?>"
+                                 onerror="this.src='/placeholder.svg?height=40&width=40'">
+                            <h3><?php echo htmlspecialchars($match['away_team']); ?></h3>
                         </div>
                         
                         <div class="players-list">
@@ -631,7 +639,7 @@ include 'includes/header.php';
                                         <?php endif; ?>
                                         <span class="jersey-number"><?php echo $player['jersey_number']; ?></span>
                                         <span class="player-name"><?php echo htmlspecialchars($player['player_name']); ?></span>
-                                        <span class="player-position"><?php echo $player['position']; ?></span>
+                                        <span class="player-position"><?php echo htmlspecialchars($player['position']); ?></span>
                                     </div>
                                 <?php endforeach; ?>
                             <?php else: ?>
@@ -672,7 +680,7 @@ include 'includes/header.php';
                                         <?php endif; ?>
                                         <span class="jersey-number"><?php echo $player['jersey_number']; ?></span>
                                         <span class="player-name"><?php echo htmlspecialchars($player['player_name']); ?></span>
-                                        <span class="player-position"><?php echo $player['position']; ?></span>
+                                        <span class="player-position"><?php echo htmlspecialchars($player['position']); ?></span>
                                     </div>
                                 <?php endforeach; ?>
                             </div>
@@ -701,8 +709,12 @@ include 'includes/header.php';
                 
                 <div class="stats-container">
                     <div class="team-logos">
-                        <img src="assets/images/teams/<?php echo $match['home_team_logo']; ?>" alt="<?php echo $match['home_team']; ?>">
-                        <img src="assets/images/teams/<?php echo $match['away_team_logo']; ?>" alt="<?php echo $match['away_team']; ?>">
+                        <img src="<?php echo get_team_logo_path($match['home_team_logo']); ?>" 
+                             alt="<?php echo htmlspecialchars($match['home_team']); ?>"
+                             onerror="this.src='/placeholder.svg?height=50&width=50'">
+                        <img src="<?php echo get_team_logo_path($match['away_team_logo']); ?>" 
+                             alt="<?php echo htmlspecialchars($match['away_team']); ?>"
+                             onerror="this.src='/placeholder.svg?height=50&width=50'">
                     </div>
                     
                     <div class="stats-grid">
