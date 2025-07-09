@@ -290,6 +290,10 @@ select:focus {
   color: var(--primary-color);
 }
 
+main {
+  padding-top: 40px; /* <-- SESUAIKAN NILAI INI */
+}
+
 .header-actions {
   display: flex;
   align-items: center;
