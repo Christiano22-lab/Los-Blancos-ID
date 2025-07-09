@@ -212,7 +212,7 @@ include 'includes/header.php';
     <?php display_message(); ?>
     
     <!-- Hero Section with Background Image -->
-    <section class="media-hero" style="background-image: linear-gradient(rgba(0, 38, 96, 0.8), rgba(0, 38, 96, 0.6)), url('assets/images/Santiago.jpeg');">
+    <section class="media-hero" style="background-image: linear-gradient(rgba(0, 38, 96, 0.8), rgba(0, 38, 96, 0.6)), url('assets/images/1.jpeg');">
         <div class="container">
             <div class="hero-content">
                 <h1><i class="fas fa-play-circle"></i> Media Los Blancos</h1>

@@ -29,13 +29,18 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a365d 0%, #2d5a87 50%, #ffd700 100%);
+  background-image: url('assets/images/1.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   color: white;
   text-align: center;
   overflow: hidden;
   margin: 0;
-  padding: 0;
+  padding: 0 1rem;
+  box-sizing: border-box;
 }
+
 
 .hero-overlay {
   position: absolute;

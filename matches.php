@@ -148,7 +148,7 @@ include 'includes/header.php';
 <div class="matches-container">
     <?php display_message(); ?>
     
-    <section class="matches-hero">
+    <section class="matches-hero" style="background-image: linear-gradient(rgba(0, 38, 96, 0.8), rgba(0, 38, 96, 0.6)), url('assets/images/1.jpeg');">
         <div class="hero-content">
             <h1>Matches</h1>
             <p>Follow Real Madrid's journey through every competition</p>

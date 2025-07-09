@@ -29,15 +29,15 @@ include 'includes/header.php';
 <link rel="stylesheet" href="assets/css/news-carousel.css">
 
 <!-- Hero Section - True Full Screen -->
-<section class="hero-section">
+<section class="hero-section" style="background-image: linear-gradient(rgba(0, 38, 96, 0.8), rgba(0, 38, 96, 0.6)), url('assets/images/1.jpeg');">
     <div class="hero-overlay"></div>
     <div class="hero-content">
         <div class="hero-badge">
             <i class="fas fa-crown"></i>
             <span>Los Blancos Indonesia</span>
         </div>
-        <h1>Welcome to Los Blancos ID </h1>
-        <p>The ultimate destination for Madridistas worldwide. Join our community of passionate fans celebrating the greatest club in football history.</p>
+        <h1>Selamat Datang di Los Blancos ID </h1>
+        <p>Tempat Berkumpulnya Madridista Sejati. Enjoy Aman dan Ketahui Informasi Terkini Seputar Real Madrid </p>
         <div class="hero-buttons">
             <a href="about.php" class="btn btn-hero-primary">
                 <i class="fas fa-info-circle"></i> About Us
@@ -57,8 +57,8 @@ include 'includes/header.php';
                 <i class="fas fa-newspaper"></i>
                 <span>Latest Updates</span>
             </div>
-            <h2>Latest News</h2>
-            <p>Stay updated with the latest Real Madrid news, match reports, and exclusive content from our community.</p>
+            <h2>Berita Terkini</h2>
+            <p>Tetap ikuti berita Real Madrid terkini, laporan pertandingan, dan konten eksklusif dari komunitas kami.</p>
         </div>
         
         <div class="news-grid">
@@ -100,8 +100,8 @@ include 'includes/header.php';
             <?php else: ?>
                 <div class="no-content">
                     <i class="fas fa-newspaper"></i>
-                    <h3>No News Available</h3>
-                    <p>Check back later for updates!</p>
+                    <h3>Tidak Tersedia Berita</h3>
+                    <p>Periksa kembali nanti untuk mengetahui update Terbaru!</p>
                 </div>
             <?php endif; ?>
         </div>
@@ -124,7 +124,7 @@ include 'includes/header.php';
                 <span>Match Center</span>
             </div>
             <h2>Upcoming & Recent Matches</h2>
-            <p>Follow Real Madrid's journey through all competitions with detailed match information and results.</p>
+            <p>Ikuti perjalanan Real Madrid melalui semua kompetisi dengan informasi dan hasil pertandingan terperinci.</p>
         </div>
         
         <div class="matches-tabs">
@@ -275,7 +275,7 @@ include 'includes/header.php';
                 <span>Photo Gallery</span>
             </div>
             <h2>Memorable Moments</h2>
-            <p>Relive the greatest moments in Real Madrid history through our exclusive photo collection.</p>
+            <p>Hidupkan kembali momen terhebat dalam sejarah Real Madrid melalui koleksi foto eksklusif kami.</p>
         </div>
         
         <div class="gallery-grid">

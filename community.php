@@ -103,7 +103,7 @@ include 'includes/header.php';
    <?php display_message(); ?>
    
    <!-- Hero Section with Background Image -->
-   <section class="community-hero" style="background-image: linear-gradient(rgba(0, 38, 96, 0.85), rgba(0, 38, 96, 0.75)), url('assets/images/Santiago.jpeg');">
+   <section class="community-hero" style="background-image: linear-gradient(rgba(0, 38, 96, 0.85), rgba(0, 38, 96, 0.75)), url('assets/images/1.jpeg');">
        <div class="container">
            <div class="hero-content">
                <h1><i class="fas fa-users"></i> Komunitas Madridista</h1>
@@ -125,7 +125,7 @@ include 'includes/header.php';
                        <div class="stat-label">Total Member</div>
                    </div>
                    <div class="stat-item">
-                       <div class="stat-number">5</div>
+                       <div class="stat-number">4</div>
                        <div class="stat-label">Platform</div>
                    </div>
                </div>

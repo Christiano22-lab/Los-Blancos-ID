@@ -692,7 +692,7 @@ include 'includes/header.php';
                     <h4>MANAJER</h4>
                     <div class="manager-info">
                         <div class="manager-item">
-                            <span class="manager-name">Carlo Ancelotti</span>
+                            <span class="manager-name">Xabi Alonso</span>
                         </div>
                         <div class="manager-item">
                             <span class="manager-name">Opponent Manager</span>

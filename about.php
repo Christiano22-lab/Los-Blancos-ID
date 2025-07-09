@@ -25,20 +25,6 @@ require_once 'includes/header.php';
                 Bergabunglah dengan ribuan penggemar Real Madrid di Indonesia. 
                 Bersama kita dukung Los Blancos menuju kemenangan!
             </p>
-            <div class="hero-stats">
-                <div class="stat-item">
-                    <div class="stat-number">5000+</div>
-                    <div class="stat-label">Members</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">50+</div>
-                    <div class="stat-label">Cities</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">2018</div>
-                    <div class="stat-label">Founded</div>
-                </div>
-            </div>
         </div>
     </div>
 </div>
@@ -128,7 +114,7 @@ require_once 'includes/header.php';
                 </p>
                 <div class="team-social">
                     <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.instagram.com/tianoanta/"><i class="fab fa-instagram"></i></a>
                     <a href="#"><i class="fab fa-facebook-f"></i></a>
                 </div>
             </div>
