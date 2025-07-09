@@ -213,7 +213,7 @@ select:focus {
 
 /* Header - Fixed positioning and layout shift prevention */
 .header {
-  position: sticky;
+  position: fixed;
   top: 0;
   z-index: 100;
   background-color: var(--background-color);
